@@ -7,14 +7,17 @@ Usage:
 
 ToDo:
 	Tags to reuse a variable
-	Escaping of special chars like {}()
-	
+		'{(tag)0-2}-{A-C}+{tag}'
+	Escaping of special chars like {}(),-
+
 '''
 
 import re
 import datetime
 
 theList = []
+dctTags = {}
+
 #p = re.compile(r"(?P<grp_p>{[^}]+})") #find {x}
 p = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x,,,}
 p1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
@@ -34,9 +37,10 @@ def chargen(instr):
 	print(cnt)
 
 def iterChars(instr):
-	global theList,p,p1,p2,p3
+	global theList,dctTags,p,p1,p2,p3
 	m = p.search(instr)
 	if m:
+		tag = m.group(r'tag')
 		mgrp_p = m.group(r'grp_p')
 		m1 = p1.findall(mgrp_p)
 		for gres in m1:
@@ -48,6 +52,8 @@ def iterChars(instr):
 				start = int(start)
 				for x in range(start, ende + 1):
 					val = str(x).rjust(slen, '0')
+					if tag:
+						dctTags[tag] = val
 					iterChars(instr.replace(m.group(0), val, 1))
 			elif p3.match(gres): # chars
 				m3 = p3.match(gres)
@@ -62,11 +68,14 @@ def iterChars(instr):
 	else:
 		resOutput(instr)
 
-def resOutput(inStr):
-	global cnt
+def resOutput(instr):
+	global cnt, dctTags
+	for key, val in dctTags.items():
+		instr = instr.replace('['+str(key)+']', val)
+
 	#print(inStr)
 	cnt+=1
-	theList.append(inStr)
+	theList.append(instr)
 
 
 
