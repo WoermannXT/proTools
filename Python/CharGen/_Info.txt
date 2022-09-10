@@ -1,0 +1,5 @@
+
+Use chargenCall to run from Command Line
+For help run: chargenCall.py -h
+
+
