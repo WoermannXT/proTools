@@ -5,6 +5,10 @@ Usage:
 '1{c-d,m,n,o}-{1,2}'
 	['1c-1', '1c-2', '1d-1', '1d-2', '1m-1', '1m-2', '1n-1', '1n-2', '1o-1', '1o-2']
 
+ToDo:
+	Tags to reuse a variable
+	Escaping of special chars like {}()
+	
 '''
 
 import re
