@@ -18,7 +18,7 @@ formats are defined by the input:
 
 import argparse
 import string
-from chargenEW import chargen
+from chargen import chargen
 
 def ArgsMan(args):
 	parser = argparse.ArgumentParser(description='Web The Ripper')
