@@ -4,11 +4,13 @@ Usage:
 	['x0-A', 'x0-B', 'x0-C', 'x1-A', 'x1-B', 'x1-C', 'x2-A', 'x2-B', 'x2-C']
 '1{c-d,m,n,o}-{1,2}'
 	['1c-1', '1c-2', '1d-1', '1d-2', '1m-1', '1m-2', '1n-1', '1n-2', '1o-1', '1o-2']
+'t {(tag)0-2}-{A-C}+[tag]'
+	['t 0-A+0', 't 0-B+0', 't 0-C+0', 't 1-A+1', 't 1-B+1', 't 1-C+1', 't 2-A+2', 't 2-B+2', 't 2-C+2']
 
 ToDo:
-	Tags to reuse a variable
-		'{(tag)0-2}-{A-C}+{tag}'
-	Escaping of special chars like {}(),-
+	+Tags to reuse a variable
+		'{(tag)0-2}-{A-C}+[tag]'
+	-Escaping of special chars like {}(),-
 
 '''
 
