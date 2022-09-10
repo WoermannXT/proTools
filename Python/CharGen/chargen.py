@@ -64,7 +64,7 @@ def resOutput(instr):
 	for key, val in dctTags.items():
 		instr = instr.replace('['+str(key)+']', val)
 
-	print(instr)
+	print(instr) #-------------------------------------------------
 
 
 
