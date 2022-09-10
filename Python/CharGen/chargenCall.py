@@ -1,21 +1,4 @@
 
-"""
-Generate series of chars fom start char to end char
-	or of a given selection of chars
-	chars are based on the 255 ASCII Table
-
-definition is inside {}:
-	{1-99}; {a-z}; {2002-2022}; {2,4,6,8,00-99} {0-9,a-z,A-Z}
-
-hexadecimal digits would be:
-	{0-9,a-f} or {0-9,A-F}
-
-formats are defined by the input:
-	{000-128}
-
-"""
-
-
 import argparse
 import datetime
 from chargen import chargen
