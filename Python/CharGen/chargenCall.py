@@ -17,20 +17,22 @@ formats are defined by the input:
 
 
 import argparse
-import string
+import datetime
 from chargen import chargen
 
 def ArgsMan(args):
 	parser = argparse.ArgumentParser(description='Web The Ripper')
-	#parser.add_argument('-s', '--source', default='This is the {0-99}th question: {a-z,A-Z,000-019,!,ü} - {000-999}', type=str, help='Source String')
-	parser.add_argument('-s', '--source', default=' {(tag)0-2}-{A-C}+[tag]')
+	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]')
 
 	args = parser.parse_args()
-	s = args.source
+	s = args.input
 
+	tStart = datetime.datetime.now()
 	# -----
 	chargen(s)
 	# -----
+	tEnd = datetime.datetime.now()
+	print(tEnd-tStart)
 	
 def worker(instr):
 	print(instr)
