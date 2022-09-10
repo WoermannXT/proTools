@@ -15,7 +15,6 @@ ToDo:
 '''
 
 import re
-import datetime
 
 theList = []
 dctTags = {}
@@ -25,18 +24,11 @@ p = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x,,,}
 p1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 p2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 p3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
-cnt = 0
 
 def chargen(instr):
-	global cnt
-	tStart = datetime.datetime.now()
 	# -----
 	iterChars(instr)
 	# -----
-	tEnd = datetime.datetime.now()
-	print(theList)
-	print(tEnd-tStart)
-	print(cnt)
 
 def iterChars(instr):
 	global theList,dctTags,p,p1,p2,p3
@@ -71,13 +63,11 @@ def iterChars(instr):
 		resOutput(instr)
 
 def resOutput(instr):
-	global cnt, dctTags
+	global dctTags
 	for key, val in dctTags.items():
 		instr = instr.replace('['+str(key)+']', val)
 
-	#print(inStr)
-	cnt+=1
-	theList.append(instr)
+	print(instr)
 
 
 
