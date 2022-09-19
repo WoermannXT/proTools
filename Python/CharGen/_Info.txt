@@ -1,5 +1,23 @@
-
 Use chargenCall to run from Command Line
-For help run: chargenCall.py -h
+For help run: python.exe .\chargenCall.py -h
 
+Use:
+	run: python.exe .\chargenCall.py -i 'test{1-3}'
 
+Function:
+	Use curly brackests to define a substitution: {3-8} = number 3 to 8 (incl)
+	Use a comma to define seperate sets of substitutions: {3-8,a-d,x)= number 3 to 8, then letetrs a to d and ten the letter x
+	Multiple substitutions can be concatenated with text: Todays date is the {1-31} of {Oktober,November,December} 
+	
+Number Formats:	
+	the first (left) number of a range defines the number format: {001-9} gives the same result as {001-009}
+
+Tags:
+	Define a tag with: {(tag1)0-9,a,d,f}
+	Read a tag with: [tag1]
+	
+Restrictions:
+	Cascading is not working, so no culry brackets inside other curly brackests
+	
+ToDo:
+	Escaping of curly brackets
