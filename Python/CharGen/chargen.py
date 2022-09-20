@@ -59,7 +59,7 @@ def chargen(instr):
 	else:
 		for key, val in dctCharTags.items():
 			instr = instr.replace('['+str(key)+']', val)
-		print(instr) #-------------------------------------------------
+		print (instr) # -- Generated Char String Output to Console --
 
 
 
