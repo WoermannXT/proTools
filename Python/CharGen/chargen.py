@@ -28,7 +28,7 @@ p2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 p3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
 
 def chargen(instr):
-	global theList,dctTags,p,p1,p2,p3
+	global dctTags,p,p1,p2,p3
 	m = p.search(instr)
 	if m:
 		tag = m.group(r'tag')
@@ -57,14 +57,9 @@ def chargen(instr):
 				val = gres
 				chargen(instr.replace(m.group(0), val, 1))
 	else:
-		resOutput(instr)
-
-def resOutput(instr):
-	global dctTags
-	for key, val in dctTags.items():
-		instr = instr.replace('['+str(key)+']', val)
-
-	print(instr) #-------------------------------------------------
+		for key, val in dctTags.items():
+			instr = instr.replace('['+str(key)+']', val)
+		print(instr) #-------------------------------------------------
 
 
 
