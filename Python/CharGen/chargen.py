@@ -19,10 +19,10 @@ ToDo:
 	-Escaping of special chars like {}(),-
 '''
 
-import re
+import re	#Regular Expressions
 
 dctCharTags = {}
-rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x,,,}
+rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x}
 rexp1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 rexp2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
@@ -33,12 +33,12 @@ def chargen(instr):
 	if m:
 		tag = m.group(r'tag')
 		mgrp_p = m.group(r'grp_p')
-		m1 = rexp1.findall(mgrp_p)
-		for gres in m1:
+		fa = rexp1.findall(mgrp_p)
+		for gres in fa:
 			if rexp2.match(gres): # numbers
-				m2 = rexp2.match(gres)
-				start = m2.group(r'grp_qp1')
-				ende = int(m2.group(r'grp_qp2'))
+				mm = rexp2.match(gres)
+				start = mm.group(r'grp_qp1')
+				ende = int(mm.group(r'grp_qp2'))
 				slen = len(start)
 				start = int(start)
 				for x in range(start, ende + 1):
@@ -47,9 +47,9 @@ def chargen(instr):
 						dctCharTags[tag] = val
 					chargen(instr.replace(m.group(0), val, 1))
 			elif rexp3.match(gres): # chars
-				m3 = rexp3.match(gres)
-				start = ord(m3.group(r'grp_qp1'))
-				ende = ord(m3.group(r'grp_qp2'))
+				mm = rexp3.match(gres)
+				start = ord(mm.group(r'grp_qp1'))
+				ende = ord(mm.group(r'grp_qp2'))
 				for x in range(start, ende + 1):
 					val = chr(x)
 					chargen(instr.replace(m.group(0), val, 1))
