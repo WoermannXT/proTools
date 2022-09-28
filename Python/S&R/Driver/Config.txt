@@ -1,0 +1,11 @@
+// Search and Replace Queries in Chronological order (Line by Line)
+// The key defines special functions like regular expressions, if the key is not defined 
+// the standard S&R is used
+// Standard Synthax: search{x|key|}replace		(delete the x; used to not identify as template)
+// Keys:
+//	regex: to use regular expressions 
+:USER:{||}:User:
+(User:[^\n]+):Sig(\n){|regex|}\1:Val\2
+
+
+

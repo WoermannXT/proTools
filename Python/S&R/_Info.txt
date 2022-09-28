@@ -1,0 +1,7 @@
+Note:
+If no Destinatin is defined, the source will be replaced!
+For Help use:
+python.exe '.\UniS&R.py' -h
+Example:
+python.exe '.\UniS&R.py' -s .\Driver\org\ -d .\Driver\out\ -c .\Driver\Config.txt -m .*S_7$
+
