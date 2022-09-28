@@ -19,6 +19,8 @@ ToDo:
 	-Escaping of special chars like {}(),-
 '''
 
+import argparse
+import datetime
 import re	#Regular Expressions
 
 dctCharTags = {}
@@ -26,6 +28,22 @@ rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x}
 rexp1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 rexp2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
+
+
+def ArgsMan(args):
+	parser = argparse.ArgumentParser(description='Web The Ripper')
+	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]')
+
+	args = parser.parse_args()
+	s = args.input
+
+	tStart = datetime.datetime.now()
+	# -----
+	chargen(s)
+	# -----
+	tEnd = datetime.datetime.now()
+	print(tEnd-tStart)
+
 
 def chargen(instr):
 	global dctCharTags,rexp0,rexp1,rexp2,rexp3
@@ -63,7 +81,14 @@ def chargen(instr):
 
 
 
-
+#------------------------------------------------------------------------------------
+# Main-------------------------------------------------------------------------------
+if __name__ == '__main__':
+	from sys import argv
+	try:
+		ArgsMan(argv)
+	except KeyboardInterrupt:
+		pass
 
 
 
