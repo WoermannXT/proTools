@@ -1,11 +1,12 @@
-Use chargenCall to run from Command Line
-For help run: python.exe .\chargenCall.py -h
+For help run: python.exe .\chargen.py -h
 
 Dependencies:
-	import re #Regular Expressions
+	import argparse
+	import datetime
+	import re
 	
 Use:
-	run: python.exe .\chargenCall.py -i 'test{1-3}'
+	run: python.exe .\chargen.py -i 'test{1-3}'
 
 Function:
 	Use curly brackests to define a substitution: {3-8} = number 3 to 8 (incl)
