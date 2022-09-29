@@ -14,16 +14,12 @@ from io import BytesIO
 from PIL import Image
 import hashlib
 import json
-import bson
-import numpy
-
 
 
 def Worker(args):
 	print("User Current Version:-", sys.version)
 	# -- Arguments Definitions --------------------------------------------------------------------------------------------------------------
 	parser = argparse.ArgumentParser(description='FileMan Link Generator')
-	# -- Size
 	parser.add_argument('-s', '--source', type=str, help='Source Image File')
 
 	# -- Variable Definitions --------------------------------------------------------------------------------------------------------------
