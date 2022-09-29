@@ -32,7 +32,7 @@ rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
 
 def ArgsMan(args):
 	parser = argparse.ArgumentParser(description='Web The Ripper')
-	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]')
+	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]', help='Input string to extract like: {(tag)0-2}-{A-C}+[tag]')
 
 	args = parser.parse_args()
 	s = args.input
