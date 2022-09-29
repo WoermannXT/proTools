@@ -9,19 +9,19 @@ import collections
 import argparse
 import datetime
 import os
+import sys
 from io import BytesIO
 from PIL import Image
 import hashlib
 import json
-import bson
 import numpy
 
 
 
 def Worker(args):
+	print("User Current Version:-", sys.version)
 	# -- Arguments Definitions --------------------------------------------------------------------------------------------------------------
 	parser = argparse.ArgumentParser(description='FileMan Link Generator')
-	# -- Size
 	parser.add_argument('-s', '--source', type=str, help='Source Image File')
 	parser.add_argument('-a', '--antialias', action='store_true', help='Image height in pixels')
 
@@ -71,9 +71,6 @@ def Worker(args):
 	#img2.save(_path + nfn)
 
 
-
-
-
 #------------------------------------------------------------------------------------
 # get Image Hash --------------------------------------------------------------------
 #------------------------------------------------------------------------------------
@@ -89,16 +86,17 @@ def getImgHash(img, aal):
 	# 8x8 RGB Bitmap for Image Hash
 	bmp = img2.tobytes()
 	bmph = bmp.hex()
-	jd['mapRGBh'] = bmph
 
 	# mapMD5
 	imb = hashlib.md5(bmp)
 	mapID = imb.hexdigest()
-	jd['mapMD5'] = mapID
 	
 	# visID
 	visID = imghash(img2)
 	jd['visID'] = visID
+	jd['mapID'] = mapID
+	jd['map'] = bmph
+
 	return jd
 
 #------------------------------------------------------------------------------------
