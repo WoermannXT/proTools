@@ -1,0 +1,72 @@
+IDq is an image ID research and query tool
+
+IDq-hash
+
+
+Naming:
+	IMGmap = 8x8 rgb Bitmap of original image (192 bytes) (how to reduce image to this size efficiently)
+	mapID = md5 of IMGmap
+	visID = visual Image ID of 8x8 grayscale (sum of rgb) (64 bit, 933865e71c9a4b66, BIGINT 64, Index)
+	rawID = Raw File ID = md5 hash of file 	(128 bit, 900150983cd24fb0d6963f7d28e17f72)
+	srcStr = source (url or file location)
+	srcID = md5 hash of source (url or file location)
+	refStr = referer (url or file location)
+	refID = md5 hash of referer (url or file location)
+
+Indexing:
+	Key1 = visID (64 bit)
+	Key2 = mapID (128 bit)	
+	Key3 = rawID (128 bit)	
+	
+
+VisualDB:	
+	{vis: 	
+		{id:	
+			{map:	
+				{id:val,
+					{raw:
+						{id:
+							{src:
+								{id:val,
+								
+								}
+							}
+						}
+							
+					}
+	
+			}
+		}
+	}
+			---rawID
+				EXIF
+				IMGProp
+				----srcID
+					srcStr
+					refStr
+					
+RefererDB:
+	-srcID
+	 srcStr
+		--refID
+		refStr
+
+		
+		
+Modules:
+ListWorker(List)>
+				PatternExpander(Pattern)>
+										WebTheRipper(URL)>
+															ImgIndexer(Image)
+																PIL
+															FaceExtractor(image)
+																CV2
+																
+ListMaker(Config)
+
+ImageDB:
+	Relevant images are saved in the ImageDB Filesystem
+		root/x8ID{4}/x8ID{4,4}/x8ID{8,4}/x8ID{12,20}.ext
+	Relevant Images:
+		Common images (often found/referenced)
+		Original images (with EXIF/GPS Data)
