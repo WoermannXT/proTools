@@ -14,16 +14,14 @@ from io import BytesIO
 from PIL import Image
 import hashlib
 import json
-import bson
-import numpy
 
+from DctTools import dctcln as dc
 
 
 def Worker(args):
 	print("User Current Version:-", sys.version)
 	# -- Arguments Definitions --------------------------------------------------------------------------------------------------------------
 	parser = argparse.ArgumentParser(description='FileMan Link Generator')
-	# -- Size
 	parser.add_argument('-s', '--source', type=str, help='Source Image File')
 
 	# -- Variable Definitions --------------------------------------------------------------------------------------------------------------
@@ -57,19 +55,8 @@ def Worker(args):
 # Get EXIF Data ---------------------------------------------------------------------
 # Returns NULL if no EXIF data available --------------------------------------------
 def getExif(img):
-	return dictcleaner(img._getexif())
+	return dc(img._getexif())
 
-#------------------------------------------------------------------------------------
-# Dict Clean up ---------------------------------------------------------------------
-def dictcleaner(dct):
-	if dct:
-		for key, val in dct.items():
-			if isinstance(val, dict):
-				dct[key] = dictcleaner(val)
-			elif isinstance(val, bytes):
-				#dct[key] = val.decode('unicode_escape')
-				dct[key] = val.decode("utf-8", "ignore")  
-	return dct
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
