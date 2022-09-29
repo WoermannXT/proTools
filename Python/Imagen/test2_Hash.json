@@ -1,8 +1,20 @@
 {
-    "mapMD5": "68cc5c00dc72804bfeecc03b7749e186",
-    "srcMD5": "72791785d8d497849705099b491ad8c9",
-    "src": ".\\test2.jpg",
-    "rawMD5": "2c4f0838f400e0d8aeb105d0bfae0b47",
-    "mapRGBh": "72b4ee59a4e857a4ea3d91eb1f86e2537c2e0814081f2c0e8ecafc4ea6f04ca3f04a93a40d31013467242637250f1e0751b0f075c0f75db6f8fffef6ffa8c00b1a0306110313220335affa4cb5f69d3f33f58293ff3c644d2f372f430e43552d88a8ce68cbfffda9c1ffb6c5f92c539d3a4c8dbf2c5e7a26c9c15f7b4426e68096feac9e9b596372702629400a77a624365f00bbdbf06398265c790b26430d2041143e5a0365691d7b9798568a040510027f925235550c030d05547606c46c92",
-    "visID": "0309a3a3e5628727"
+    "vis": {
+        "038183a3416982c7": {
+            "map": {
+                "6760e45d44715b50d6cdca831e9768e2": {
+                    "70b4f161aaec4fa0ec2e86bf2d7788355c3114200a1b270b64b3f370b8f45badf23093d6245f473a6326253a2029352150b0f56ebefa71b8e69da8bd9b7e7c374c211b2c113f512c38b6ff4fb8fba79995f98593ff72918e695c1c3509394d2591a9cc69a5b2ba99abfd748bdc4157914442547820314a149e8753635623866c53c0504ea126387156404e701b3f6515486623708a41618c3a61743851502c3b592c3b541b6f6c4646653653830f4d7029425d231830070a19034f6718b7697b": {
+                        "raw": {
+                            "e847997bccb157ba131e9fff299ec4d0": {
+                                "src": {
+                                    "72791785d8d497849705099b491ad8c9": ".\\test2.jpg"
+                                },
+                                "exif": null
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
