@@ -37,7 +37,7 @@ def Worker(args):
 	_fob = os.path.splitext(_file)
 	_fname = _fob[0]		#Filename (without Extension)
 	_fext = _fob[1]			#File Extension (.txt)
-	#size = (args.width, args.height)
+	size = (args.width, args.height)
 	jd = {}
 
 	# -- Image -----------------------------------------------------------------------------------------------------------------------------
@@ -76,22 +76,29 @@ def Worker(args):
 #------------------------------------------------------------------------------------
 def getImgHash(img, aal):
 	jd = {}
-	# Image Resize
+	#-- Image Resize
 	size = (8, 8)
 	if aal:
 		img2 = img.resize(size, Image.ANTIALIAS) #25s/10000 (depending on image size)
 	else:
 		img2 = img.resize(size,)
 
-	# 8x8 RGB Bitmap for Image Hash
+	#-- 8x8 RGB Bitmap for Image Hash
 	bmp = img2.tobytes()
+	print(bmp)
 	bmph = bmp.hex()
-
-	# mapMD5
+	#-- convert back to 64x3xFF
+	#y = [bmph[i:i+6] for i in range(0, len(bmph), 6)]
+	#for x, v in enumerate(y):
+	#	y[x] = [v[i:i+2] for i in range(0, len(v), 2)]
+	#print(' ---------------------------- ',y)
+	#print(' ---------------------------- ',img2)
+	
+	#-- mapMD5
 	imb = hashlib.md5(bmp)
 	mapID = imb.hexdigest()
 	
-	# visID
+	#-- visID
 	visID = imghash(img2)
 	jd['visID'] = visID
 	jd['mapID'] = mapID
