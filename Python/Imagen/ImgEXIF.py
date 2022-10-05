@@ -14,6 +14,7 @@ from io import BytesIO
 from PIL import Image
 import hashlib
 import json
+import exifread
 
 from DctTools import dctcln as dc
 
@@ -39,6 +40,8 @@ def Worker(args):
 	# -- Image -----------------------------------------------------------------------------------------------------------------------------
 	img = Image.open(_src) # Open Image
 	tStart = datetime.datetime.now()
+	
+	#img = open(_src, "rb") # -- test exifread
 
 	jd['EXIF'] = getExif(img)
 	# JSON
@@ -55,7 +58,10 @@ def Worker(args):
 # Get EXIF Data ---------------------------------------------------------------------
 # Returns NULL if no EXIF data available --------------------------------------------
 def getExif(img):
-	return dc(img._getexif())
+	exif = img._getexif()
+	#exif = exifread.process_file(img)
+	print(exif)
+	return dc(exif)
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
