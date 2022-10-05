@@ -44,10 +44,9 @@ def dctcln(obj):
 	elif isinstance(obj, tuple):
 		return tuple(dctcln(val) for val in obj)
 	elif isinstance(obj, bytes):
-		return  obj.decode("utf-8", "ignore")  
-		return  dct.decode(errors="replace") 
+		#return  obj.decode("utf-8", "ignore")  
+		return  obj.decode(errors="replace") 
 	if isinstance(obj, TiffImagePlugin.IFDRational):
-		#print(obj)
 		return float(obj)
 	else: return obj
 
