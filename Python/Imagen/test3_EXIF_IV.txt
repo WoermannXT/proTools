@@ -1,0 +1,103 @@
+Filename - test3.jpg
+ImageWidth - 5760
+ImageLength - 3840
+BitsPerSample - 8 8 8 
+Compression - 6 (JPG)
+Make - Canon
+Model - Canon EOS 5D Mark III
+StripOffset - 95056
+Orientation - Top left
+StripByteCount - 3041456
+XResolution - 102
+YResolution - 102
+ResolutionUnit - Inch
+DateTime - 2019:01:07 02:26:45
+Artist - 
+Copyright - 
+Exif-IFD-Offset - 446
+ExposureTime - 1/250 seconds
+FNumber - 5.60
+ExposureProgram - Normal program
+ISOSpeedRatings - 6400
+Recommended Exposure Index - 6400
+ExifVersion - 0230
+DateTimeOriginal - 2019:01:07 02:26:45
+DateTimeDigitized - 2019:01:07 02:26:45
+ComponentsConfiguration - YCbCr
+ShutterSpeedValue - 1/256 seconds
+ApertureValue - F 5.66
+ExposureBiasValue - 0
+MeteringMode - Multi-segment
+Flash - Flash not fired, compulsory flash mode
+FocalLength - 285 mm
+UserComment - R�^B<�FF�{�>
+>1=��G �������튂���Le�BW�>���^85�}5�˻�
+SubsecTime - 00
+SubsecTimeOriginal - 00
+SubsecTimeDigitized - 00
+FlashPixVersion - 0100
+ColorSpace - sRGB
+ExifImageWidth - 5760
+ExifImageHeight - 3840
+InteroperabilityOffset - 69460
+FocalPlaneXResolution - 0.99
+FocalPlaneYResolution - -0.55
+FocalPlaneResolutionUnit - Inch
+CustomRendered - Normal process
+ExposureMode - Auto
+White Balance - Auto
+SceneCaptureType - Standard
+Owner Name - 
+Serial Number - a��z�Z��Kl�t
+Lens Info - 7.32  0.52  1.65  1.52
+Lens Model - x��E��|�u�S�:��V��8o�WIbV�u�
+Lens Serial Number - ���^��!�zҋ
+
+GPS information: - 
+
+Maker Note (Vendor): - 
+Macro mode - Off
+Self timer - 1024/10 sec
+Quality - Normal
+Flash mode - Not fired
+Sequence mode - Single or Timer
+Focus mode - One-Shot
+Image size - Large
+Easy shooting mode - Full Auto
+Digital zoom - None
+Contrast - Normal
+Saturation - Normal
+Sharpness - Normal
+ISO Value - 6400
+Metering mode - Center weighted averaging
+Focus type - Manual
+AF point selected - 0
+Exposure mode - Easy shooting
+Focal length - 1.0 - 0.5 mm
+Focal units - 1024/mm
+Flash activity - Not fired
+Flash details - 
+Focus mode 2 - Single
+Auto ISO - 100
+Base ISO - 3
+White Balance - Auto
+Sequence number - 0
+Camera Temperature (EOS only) - 896 C
+Flash bias - 0 EV
+Subject Distance - 568.32
+Image Type - ~                 
+Firmware Version - 
+Owner Name - ﾭ�
+Sharpness (EOS 1D) - 173
+Directory index (EOS 450D) - 0
+File index (EOS 450D) - 262149
+AF point selected - Off (Manual Focus)
+Num AF Points - 0
+Valid AF Points - 0
+AF Image Width - 0
+AF Image Height - 0
+File number - 000 - 0000
+Sharpness (A0) - 95
+ColorSpace - sRGB
+
+Thumbnail: - 
