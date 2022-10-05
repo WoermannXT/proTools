@@ -15,8 +15,9 @@ from PIL import Image
 import hashlib
 import json
 
-from ImgHash import getImgHash as ih
+from ImgHash import getImgHash as imgh
 from ImgEXIF import getExif as exif
+from ImgProp import getImgProp as prop
 from DctTools import dctmrg as dm
 
 def Worker(args):
@@ -38,12 +39,11 @@ def Worker(args):
 	_fob = os.path.splitext(_file)
 	_fname = _fob[0]		#Filename (without Extension)
 	_fext = _fob[1]			#File Extension (.txt)
-	#size = (args.width, args.height)
 
+	jx = {}
 	jd = {}
-	je = {}
 
-	# -- Image Hash ------------------------------------------------------------------------------------------------------------------------
+	# -- Image Visual ID -------------------------------------------------------------------------------------------------------------------
 	img = Image.open(_src) # Open Image
 	tStart = datetime.datetime.now()
 
@@ -56,22 +56,26 @@ def Worker(args):
 	imb = hashlib.md5(imgb)
 	rawID = imb.hexdigest()
 
-	# -- Image EXIF ------------------------------------------------------------------------------------------------------------------------
-	je['exif']= exif(img)
+	# -- Image Hash ------------------------------------------------------------------------------------------------------------------------
+	jx = imgh(img, _aal)
 
-	# visID
-	jih = ih(img, _aal)
+	# -- Image Prop ------------------------------------------------------------------------------------------------------------------------
+	jx['prop']= prop(img)
+
+	# -- Image EXIF ------------------------------------------------------------------------------------------------------------------------
+	jx['exif']= exif(img)
 
 	# -- JSON Dump--------------------------------------------------------------------------------------------------------------------------
-	jd['vis'] = {jih['visID']:
+	jd['vis'] = {jx['visID']:
 					{'map':
-						{jih['mapID']:
-							{jih['map']:
+						{jx['mapID']:
+							{jx['map']:
 								{'raw':
 									{rawID:
 										{
 										'src':{srcID:_src},
-										'exif':je['exif']
+										'exif':jx['exif'],
+										'prop':jx['prop']
 										}
 									}
 								}
