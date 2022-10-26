@@ -16,7 +16,7 @@ import hashlib
 import json
 import exifread
 
-from DctTools import dctcln as dc
+from DctTools import dctcln as dctc
 
 
 def Worker(args):
@@ -60,8 +60,8 @@ def Worker(args):
 def getExif(img):
 	exif = img._getexif()
 	#exif = exifread.process_file(img)
-	print(exif)
-	return dc(exif)
+	#print(exif)
+	return dctc(exif)
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------

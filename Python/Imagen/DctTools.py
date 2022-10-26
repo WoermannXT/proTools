@@ -11,7 +11,7 @@ import datetime
 import os
 import sys
 
-from PIL import Image, TiffImagePlugin
+from PIL import Image , TiffImagePlugin
 
 def Worker(args):
 	print("User Current Version:-", sys.version)
