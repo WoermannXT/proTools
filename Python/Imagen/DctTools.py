@@ -43,12 +43,16 @@ def dctcln(obj):
 		return obj
 	elif isinstance(obj, tuple):
 		return tuple(dctcln(val) for val in obj)
+	elif isinstance(obj, TiffImagePlugin.IFDRational):
+		return float(obj)
 	elif isinstance(obj, bytes):
 		#return  obj.decode("utf-8", "ignore")  
 		return  obj.decode(errors="replace") 
-	if isinstance(obj, TiffImagePlugin.IFDRational):
-		return float(obj)
-	else: return obj
+	#elif isinstance(obj, list):
+	#	return list(dctcln(val) for val in obj)
+	else: 
+		#print("dctcln -> non defined tyte found:", type(obj), str(obj))
+		return obj
 
 #------------------------------------------------------------------------------------
 # Dict Merger -----------------------------------------------------------------------
@@ -68,7 +72,7 @@ def dctmrg(dct='',dctnew=''):
 		return dctnew
 	elif not isinstance(dctnew, dict) and isinstance(dct, dict):
 		print('-d2 not a Dictionary: ', dctnew)
-		return dctnew
+		return dct
 	else:
 		return {}	
 
