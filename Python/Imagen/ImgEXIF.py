@@ -13,10 +13,11 @@ import sys
 from io import BytesIO
 from PIL import Image
 import hashlib
+import pickle
 import json
-import exifread
+#import exifread
 
-from DctTools import dctcln as dctc
+from DctTools import dctcln
 
 
 def Worker(args):
@@ -35,7 +36,8 @@ def Worker(args):
 	_fob = os.path.splitext(_file)
 	_fname = _fob[0]		#Filename (without Extension)
 	_fext = _fob[1]			#File Extension (.txt)
-	jd = {}
+	
+	dct = {}
 
 	# -- Image -----------------------------------------------------------------------------------------------------------------------------
 	img = Image.open(_src) # Open Image
@@ -43,12 +45,17 @@ def Worker(args):
 	
 	#img = open(_src, "rb") # -- test exifread
 
-	jd['EXIF'] = getExif(img)
+	dct['EXIF'] = getExif(img)
+
+	print(dct)
 	# JSON
-	print(json.dumps(jd, indent=4))
+	print(json.dumps(dct, indent=4, sort_keys=True))
+
+	with open(_path + _fname + '_EXIF.pckl', 'wb') as f:
+		pickle.dump(dct, f)
 
 	with open(_path + _fname + '_EXIF.json', 'w', encoding='utf-8') as f:
-		json.dump(jd, f, ensure_ascii=False, indent=4)
+		json.dump(dct, f, ensure_ascii=False, indent=4)
 
 	# Ende
 	tEnd = datetime.datetime.now()
@@ -60,8 +67,36 @@ def Worker(args):
 def getExif(img):
 	exif = img._getexif()
 	#exif = exifread.process_file(img)
-	#print(exif)
-	return dctc(exif)
+	if exif:
+		#print(exif)
+		# Clean EXIF Data:
+		# CFAPattern 	41730 	0xA302 	ExifUndefined 	byte[]
+		# DeviceSettingDescription 	41995 	0xA40B 	ExifUndefined 	byte[]
+		
+		#? ComponentsConfiguration 	37121 	0x9101 	ExifUndefined 	byte[4]
+		# ZerothIFDPadding 	59932 	0xEA1C 	ExifUndefined 	byte[]
+		# PrintIM;PrintImageMatching 	50341	0xc4a5 	IFD0 	undef 	--> PrintIM Tags
+		# 50898
+		# 50899
+		keys = [37121,50341,50898,50899,59932] #delete
+		for key in keys:
+			if key in exif: 
+				exif[key] = ''
+				print("Key {key} deleted!".format(key = key))
+		# MakerNote 	37500 	0x927C 	ExifUndefined 	byte[]
+		# UserComment 	37510 	0x9286 	ExifEncodedString 	string
+		keys = [37500,37510] # Unicode Decode
+		for key in keys:
+			if key in exif: 
+				v = exif[key]
+				if type(v) == bytes:
+					#v = v.decode('utf-16', "ignore") 
+					v = v.replace(b'\x00\x00',b'')
+				elif type(v) == str:
+					v = v.replace('\x00\x00','')
+				exif[key] = v
+	return dctcln(exif)
+	return exif
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
