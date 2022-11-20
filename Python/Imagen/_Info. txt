@@ -1,6 +1,7 @@
 Image ID Generator
 visID: Visual ID to identify visually similar images
-8x8 mono image hash (64 bit) 
+8x8 mono image hash (64 bit)
+Input is the 16x16 rgb bmp... 
 imgID: Image ID to identify visually idebtical images
 16x16 rgb bmp md5 hash (128 bit) 
 datID: Data ID of image file to identify identical file
