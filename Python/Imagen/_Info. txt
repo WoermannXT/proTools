@@ -1,12 +1,12 @@
 Image ID Generator
 visID: Visual ID to identify visually similar images
-8x8 mono image hash (64 bit)
-imgBMP: Serialized 16x16 Bitmap
-A serialized string of the hex rgb xalues of the bitmap. 
+    8x8 mono image hash (64 bit)
+imgBMP: Serialized 16x16 Bitmap (768x2 byte) 
+    A serialized string of the hex rgb xalues of the bitmap. 
 imgID: Image ID to identify visually idebtical images
-16x16 rgb bmp md5 hash (128 bit) 
+    imgBMP md5 hash (128 bit) 
 datID: Data ID of image file to identify identical file
-md5 hash of image file (128 bit)
+    md5 hash of image file (128 bit)
 
 Process:
 The datID is calculated (md5 of image file).
