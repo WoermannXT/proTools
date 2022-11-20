@@ -1,8 +1,16 @@
 Image ID Generator
 visID: Visual ID to identify visually similar images
 8x8 mono image hash (64 bit)
-Input is the 16x16 rgb bmp... 
 imgID: Image ID to identify visually idebtical images
 16x16 rgb bmp md5 hash (128 bit) 
 datID: Data ID of image file to identify identical file
-md5 hash of image file (128 bit) 
+md5 hash of image file (128 bit)
+
+Process:
+The datID is calculated (md5 of image file).
+Then the image is cropped to a 16x16x3 rgb numpy array. 
+Transform to a mono 16x16 numpy array by adding up the rgb values. 
+Reduce to a 8x8 numpy array by calculating the median of the 64 4x4 clusters. 
+Calculate the 64 bit sequence by comparing each value with the next one in the serialized numpy array.
+ 
+
