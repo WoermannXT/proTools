@@ -1,7 +1,7 @@
 # proTools
 Collection of productivity Tools from Woermann Automation
 
-Please read the wiki for information about the different tools. 
+Please read the wiki for information about the different tools / scripts. 
 
 Python:
 	- PID: Python PID algorithm with simulator
