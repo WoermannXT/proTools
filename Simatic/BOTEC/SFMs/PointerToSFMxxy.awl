@@ -1,0 +1,70 @@
+
+// Pointer to BOTEC F1 SFM32 Markers
+      L     32                          // Enter SFM Number
+      L     -1
+      +I    
+      T     #adjSFMNo                   // Adjusted SFM Number
+      L     8                           // Bits per Byte
+      MOD   
+      T     #BitAddr                    // Rem Val
+
+      L     #adjSFMNo                   // Adjusted SFM Number
+      L     8                           // Bits per Byte
+      /I                                // Number of full Bytes
+      L     130                         // SFM Offset ("SFM01S" = M130.0)
+      +I
+      SLD   3                           // Pointer Format
+      L     #BitAddr
+      OW                                // Add Bit Address
+      T     #_SFMxxS
+      L     P#10.0                      // Offset to SFMxxP
+      +D    
+      T     #_SFMxxP
+      L     P#10.0                      // Offset to SFMxxD
+      +D    
+      T     #_SFMxxD
+      L     P#10.0                      // Offset to SFMxxRes
+      +D    
+      T     #_SFMxxRes
+
+// Examples
+      A     M [#_SFMxxS]                // "SFM32S"
+      A     M [#_SFMxxP]                // "SFM32P"
+      A     M [#_SFMxxD]                // "SFM32D"
+      A     M [#_SFMxxRes]              // "SFM32Res"
+      CLR
+	  
+// Pointer to BOTEC F1 SFA Markers
+      L     32                          // Enter SFA Number
+      L     -1
+      +I    
+      T     #adjSFANo                   // Adjusted SFA Number
+      L     8                           // Bits per Byte
+      MOD   
+      T     #BitAddr                    // Rem Val
+
+      L     #adjSFANo                   // Adjusted SFA Number
+      L     8                           // Bits per Byte
+      /I                                // Number of full Bytes
+      L     1330                        // SFA Offset ("SFA01S" = M1330.0)
+      +I
+      SLD   3                           // Pointer Format
+      L     #BitAddr
+      OW                                // Add Bit Address
+      T     #_SFAxxS
+      L     P#12.0                      // Offset to SFAxxP
+      +D    
+      T     #_SFAxxP
+      L     P#12.0                      // Offset to SFAxxD
+      +D    
+      T     #_SFAxxD
+      L     P#12.0                      // Offset to SFAxxRes
+      +D    
+      T     #_SFAxxRes
+
+// Examples
+      A     M [#_SFAxxS]                // "SFA32S"
+      A     M [#_SFAxxP]                // "SFA32P"
+      A     M [#_SFAxxD]                // "SFA32D"
+      A     M [#_SFAxxRes]              // "SFA32Res"
+      CLR
