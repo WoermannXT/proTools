@@ -1,12 +1,11 @@
 # proTools
-Collection of productivity Tools from Woermann Automation
+Public Git from Woermann Automation
 
-Please read the wiki for information about the different tools / scripts. 
+Please read/update the wiki for information about the different tools/scripts. 
 
-[BatchFiles:](/BatchFiles) Collection of Windows batch files
+[Code Factory:](/Code Factory) The productivity tools
 
-[Python:](/Python) Collection of Python scripts
+[Research Lab:](/Research Lab) Some fun projects
 
-[Simatic:](/Simatic) Collection of Simstic functions
 
 
