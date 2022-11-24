@@ -236,9 +236,6 @@ DON1: S     "OrgPFT";
 SEQ1: NOP   0; 
 //------------------------------------------------------------------------
 // Check Ready for Production --------------------------------------------
-//      A     DBX 1230.4                  // .Seq.PO.B4 // Ready For Production
-//      O     DBX 1230.5                  // .Seq.PO.B5 // Production
-//      O     DBX 1231.0                  // .Seq.PO.B8 // Emptying
       A     DBX   17.4; // .Seq.Run
       A     DBX 1352.6; // .Seq.User.Bit22 // Ready for Dosing
       JC    PHS1; // -->
