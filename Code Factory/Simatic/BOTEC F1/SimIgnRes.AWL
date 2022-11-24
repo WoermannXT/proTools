@@ -1,0 +1,117 @@
+FUNCTION "SimIgnReset" : VOID
+TITLE =
+//1. Inserted TEST_DB to test if AP_DB(1xx0) is existing and length is OK
+//2. Changed To UnitGroupSignals
+AUTHOR : Woermann
+FAMILY : BOTEC_F1
+NAME : SimIgnRe
+VERSION : 0.3
+
+
+VAR_INPUT
+  UnitNo : INT ;	//Unitnumber
+  Enable : BOOL ;	//Enable the reset of Ignore and Simulation Bits
+END_VAR
+VAR_TEMP
+  DBAdr : WORD ;	// 
+  AR1Save : DWORD ;	
+  AR2Save : DWORD ;	
+  SeqDAdr : WORD ;	
+  DBLen : WORD ;	
+  TmpBOOL : BOOL ;	
+  TmpINT : INT ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =Reset Simulation And Ignore Status of All CM's Of This Unit
+
+//      BEU   
+      AN    #Enable; 
+      BEC   ; 
+//Calculate UA
+      L     #UnitNo; 
+      L     10; 
+      *I    ; 
+      L     1000; 
+      +I    ; 
+      T     #DBAdr; 
+
+// Check APDBlock Address 
+      CALL "TEST_DB" (
+           DB_NUMBER                := #DBAdr,
+           RET_VAL                  := #TmpINT,
+           DB_LENGTH                := #DBLen,
+           WRITE_PROT               := #TmpBOOL);
+
+      AN(   ; 
+      L     #TmpINT; 
+      L     0; 
+      ==D   ; 
+      )     ; 
+      ON(   ; 
+      L     #DBLen; 
+      L     12; 
+      >=D   ; 
+      )     ; 
+      BEC   ; // End If Not OK
+
+//Get DVBlock Address
+      OPN   DB [#DBAdr]; // APDB
+      L     DBW    4; // SeqDB Address
+      T     #SeqDAdr; 
+      L     DBW    8; // DV1DB Address
+      T     #DBAdr; 
+
+// Check SeqDBlock Address 
+      CALL "TEST_DB" (
+           DB_NUMBER                := #SeqDAdr,
+           RET_VAL                  := #TmpINT,
+           DB_LENGTH                := #DBLen,
+           WRITE_PROT               := #TmpBOOL);
+
+      AN(   ; 
+      L     #TmpINT; 
+      L     0; 
+      ==D   ; 
+      )     ; 
+      ON(   ; 
+      L     #DBLen; 
+      L     20; 
+      >=D   ; 
+      )     ; 
+      BEC   ; // End If Not OK
+
+// Check DV1DBlock Address 
+      CALL "TEST_DB" (
+           DB_NUMBER                := #DBAdr,
+           RET_VAL                  := #TmpINT,
+           DB_LENGTH                := #DBLen,
+           WRITE_PROT               := #TmpBOOL);
+
+      AN(   ; 
+      L     #TmpINT; 
+      L     0; 
+      ==D   ; 
+      )     ; 
+      ON(   ; 
+      L     #DBLen; 
+      L     100; 
+      >=D   ; 
+      )     ; 
+      BEC   ; // End If Not OK
+
+// If Unit In Simulation, Do Not Reset Status
+      OPN   DB [#SeqDAdr]; // SeqDB
+      A     DBX   17.3; // Unit in Simulation
+      BEC   ; // End If Unit In Simulation
+
+// Reset Status
+      OPN   DB [#DBAdr]; // DV1DB
+      SET   ; 
+      S     DBX   96.1; // UGS.Cmd.IgnOff
+      S     DBX   96.3; // UGS.Cmd.SimOff
+
+      BEU   ; 
+
+END_FUNCTION
+

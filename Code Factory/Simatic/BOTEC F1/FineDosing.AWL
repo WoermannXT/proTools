@@ -1,0 +1,58 @@
+FUNCTION "FineDos" : VOID
+TITLE =Control of Fine Dosing by Time before Done
+AUTHOR : Woermann
+VERSION : 0.1
+
+
+VAR_INPUT
+  FDTime : REAL ;	//Fine Dosing Time in seconds (eg. 3.5 sec)
+  Amount : REAL ;	//Amount left to dose
+  Flow : REAL ;	//Flow in Amount / sec
+  FlowMax : REAL ;	//Maximum Flow in Amount / sec
+  Init : BOOL ;	//Initialize Control (SOS?PFC)
+END_VAR
+VAR_OUTPUT
+  FineDos : BOOL ;	//Fine Dosing Active (remanent Memory)
+END_VAR
+VAR_IN_OUT
+  RemMem : REAL ;	//Remember Speed for dosing
+END_VAR
+VAR_TEMP
+  rTmp : REAL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =Init
+
+// Init Flow  
+      A     #Init; 
+      JCN   Fini; 
+      L     0.000000e+000; 
+      T     #RemMem; 
+      CLR   ; 
+      =     #FineDos; 
+      BEU   ; 
+Fini: NOP   0; 
+
+NETWORK
+TITLE =Calculate
+
+// Calculate Amount for Fine Dosing
+      L     #FDTime; // sec
+      L     #RemMem; // amount / sec
+      *R    ; // amount   
+      L     #Amount; 
+      >=R   ; 
+      =     #FineDos; 
+      BEC   ; 
+
+      L     #FlowMax; 
+      L     #Flow; 
+      <R    ; 
+      JCN   NTAK; 
+      TAK   ; 
+NTAK: T     #RemMem; // amount / sec
+
+
+END_FUNCTION
+

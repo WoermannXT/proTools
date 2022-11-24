@@ -1,0 +1,729 @@
+FUNCTION "ResLoc" : VOID
+TITLE =Resource Locator (Find Location of Raw Materials)
+AUTHOR : Woermann
+NAME : ResLoc2
+VERSION : 0.1
+
+
+VAR_INPUT
+  MatID : REAL ;	//Material ID to search for
+  PLCID : INT ;	//Local PLCID to calculate Equipment ID
+END_VAR
+VAR_IN_OUT
+  EqID : REAL ;	
+  EqID2 : REAL ;	
+END_VAR
+VAR_TEMP
+  ReDo : BOOL ;	//ReDo Loop Check
+  xTmp : BOOL ;	//Temporary BOOL (free for general use) 
+  iTmp : INT ;	//Temporary INT (free for general use) 
+  dTmp : DINT ;	//Temporary DINT (free for general use)
+  rTmp : REAL ;	//Temporary REAL (free for general use)
+  iRetVal : INT ;	//Return Value
+  seqDB : INT ;	//Sequence DB Number
+  PTim : REAL ;	//Process Tine Value
+  LoopCnt : INT ;	//Loop Counter
+  loopSrcID : REAL ;	//Current Loop Pos Source Equipment ID
+  loopLinID : BYTE ;	//Current Loop Pos Dosing Line EqID
+  cntFoundMat : BYTE ;	//Counter for found Material
+  Fnd : ARRAY  [0 .. 10 ] OF //All Locations found with Material
+  STRUCT 	
+   SrcID : DINT ;	
+   LinID : DINT ;	
+   PTim : REAL ;	
+   Prio : BOOL ;	
+  END_STRUCT ;	
+  Src : ARRAY  [0 .. 1 ] OF //Source and Standby Material Location
+  STRUCT 	
+   SrcID : DINT ;	
+   LinID : DINT ;	
+   PTim : REAL ;	
+   Prio : BOOL ;	
+  END_STRUCT ;	
+  Cur : STRUCT 	//Current Material Location
+   SrcID : DINT ;	
+   LinID : DINT ;	
+   PTim : REAL ;	
+   Prio : BOOL ;	
+  END_STRUCT ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =Init
+
+// Load Default Values
+      L     0; 
+      T     #iTmp; 
+// Init Sequence DB
+      T     #seqDB; 
+// Init Found Mateial Counter
+      T     #cntFoundMat; 
+// Init Found Array
+      CALL "FILL" (
+           BVAL                     := #iTmp,
+           RET_VAL                  := #iRetVal,
+           BLK                      := #Fnd);
+// Init Source Array
+      CALL "FILL" (
+           BVAL                     := #iTmp,
+           RET_VAL                  := #iRetVal,
+           BLK                      := #Src);
+// Init EqID (Set to Auto-Select if 3.0)
+      L     #EqID; 
+      L     3.000000e+000; // Material Not found
+      ==R   ; 
+      JCN   Res1; 
+      L     1.000000e+000; // Auto-Select
+      T     #EqID; 
+Res1: NOP   0; 
+      L     #EqID2; 
+      L     3.000000e+000; // Material Not found
+      ==R   ; 
+      JCN   Res2; 
+      L     1.000000e+000; // Auto-Select
+      T     #EqID2; 
+Res2: NOP   0; 
+// End if MatID <=0
+      L     #MatID; 
+      L     0.000000e+000; 
+      >D    ; 
+      JCN   FIN; 
+
+NETWORK
+TITLE =Search Material Locations (Found Material locations)
+
+// Init Loop Counter
+      L     199; // Starting Unit (reverse to 0)
+NXT1: T     #LoopCnt; 
+//------------------------------------------------------------------------
+// -- Loop Start ---------------------------------------------------------
+//------------------------------------------------------------------------
+
+// Check Unit No ---------------------------------------------------------
+// Sugar Tanks
+      L     #LoopCnt; 
+      L     40; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     47; 
+      <I    ; 
+      )     ; 
+      =     #xTmp; 
+      JCN   ZUL1; 
+      L     1032; 
+      T     #loopLinID; 
+ZUL1: NOP   0; 
+
+// Component Tanks
+      L     #LoopCnt; 
+      L     53; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     56; 
+      <I    ; 
+      )     ; 
+      S     #xTmp; 
+      JCN   GST1; 
+      L     1062; 
+      T     #loopLinID; 
+GST1: NOP   0; 
+// Tanks & Containers Aroma
+      L     #LoopCnt; 
+      L     70; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     79; 
+      <I    ; 
+      )     ; 
+      S     #xTmp; 
+      JCN   EST1; 
+      L     1080; 
+      T     #loopLinID; 
+EST1: NOP   0; 
+// Containers Component 1-6
+      L     #LoopCnt; 
+      L     100; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     107; 
+      <I    ; 
+      )     ; 
+      S     #xTmp; 
+      JCN   GST2; 
+      L     1062; 
+      T     #loopLinID; 
+GST2: NOP   0; 
+// Containers Cola 7-11
+      L     #LoopCnt; 
+      L     106; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     112; 
+      <I    ; 
+      )     ; 
+      S     #xTmp; 
+      JCN   COL1; 
+      L     1065; 
+      T     #loopLinID; 
+COL1: NOP   0; 
+// Containers Component 12-14
+      L     #LoopCnt; 
+      L     111; 
+      >I    ; 
+      A(    ; 
+      L     #LoopCnt; 
+      L     115; 
+      <I    ; 
+      )     ; 
+      S     #xTmp; 
+      JCN   GST3; 
+      L     1062; 
+      T     #loopLinID; 
+GST3: NOP   0; 
+
+      A     #xTmp; 
+      JC    UNI1; // -->
+      L     #LoopCnt; 
+      LOOP  NXT1; // <-- GoTo next Unit
+      JU    END1; 
+UNI1: NOP   0; 
+
+//------------------------------------------------------------------------
+// Calculate SeqDB and open if exists ------------------------------------
+      L     100; // Unit 1-99
+      L     #LoopCnt; 
+      <=I   ; 
+      JC    X100; 
+      L     10; 
+      *I    ; 
+      L     1001; 
+      +I    ; 
+      T     #seqDB; 
+      JU    DON1; 
+X100: L     200; // Unit 100 - 199
+      L     #LoopCnt; 
+      <=I   ; 
+      JC    X200; 
+      L     100; 
+      -I    ; 
+      L     10; 
+      *I    ; 
+      L     4001; 
+      +I    ; 
+      T     #seqDB; 
+      JU    DON1; 
+X200: L     #LoopCnt; // Other units
+      L     200; 
+      -I    ; 
+      L     10; 
+      *I    ; 
+      L     6001; 
+      +I    ; 
+      T     #seqDB; 
+DON1: S     "OrgPFT"; 
+      OPN   DB [#seqDB]; // Check DB
+      L     DBLG; 
+      L     1500; 
+      <I    ; // DB not available or too short
+      JCN   SEQ1; 
+      L     #LoopCnt; 
+      LOOP  NXT1; // <-- GoTo next Unit
+SEQ1: NOP   0; 
+//------------------------------------------------------------------------
+// Check Ready for Production --------------------------------------------
+//      A     DBX 1230.4                  // .Seq.PO.B4 // Ready For Production
+//      O     DBX 1230.5                  // .Seq.PO.B5 // Production
+//      O     DBX 1231.0                  // .Seq.PO.B8 // Emptying
+      A     DBX   17.4; // .Seq.Run
+      A     DBX 1352.6; // .Seq.User.Bit22 // Ready for Dosing
+      JC    PHS1; // -->
+      L     #LoopCnt; 
+      LOOP  NXT1; // <-- GoTo next Unit
+      JU    END1; 
+PHS1: NOP   0; 
+//------------------------------------------------------------------------
+// Calk Equipment ID -----------------------------------------------------
+      L     #PLCID; 
+      L     1000; 
+      *D    ; 
+      L     #LoopCnt; 
+      +D    ; 
+      DTR   ; 
+      T     #loopSrcID; 
+//------------------------------------------------------------------------
+// Check Material ID -----------------------------------------------------
+      L     DBD  782; // .Seq.SFM[42].Sp // MaterialID
+      L     #MatID; 
+      ==R   ; 
+      JC    MAT1; // -->
+      L     #loopSrcID; 
+      L     #EqID; // If Selection not OK then set to 4 (Wrong Source)
+      ==R   ; // Alternatively set to 1 to "Auto Select" source 
+      JCN   MAT2; 
+      L     4.000000e+000; // Wrong Source Selected
+      T     #EqID; 
+MAT2: L     #loopSrcID; 
+      L     #EqID2; 
+      ==R   ; 
+      JCN   MAT3; 
+      L     4.000000e+000; // Wrong Source Selected
+      T     #EqID2; 
+MAT3: L     #LoopCnt; 
+      LOOP  NXT1; // <-- GoTo next Unit
+      JU    END1; 
+MAT1: NOP   0; 
+
+//-----------------------------------------------------------------------
+// Material Found -------------------------------------------------------
+      L     DBD  258; // .Seq.SFM[9].Val // Process Time
+      T     #PTim; 
+
+      L     #cntFoundMat; 
+      JL    MPE; 
+      JU    MP0; 
+      JU    MP1; 
+      JU    MP2; 
+      JU    MP3; 
+      JU    MP4; 
+      JU    MP5; 
+      JU    MP6; 
+      JU    MP7; 
+      JU    MP8; 
+      JU    MP9; 
+MPE:  NOP   0; 
+      JU    MEND; 
+MP0:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[0].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[0].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[0].LinID; 
+      L     #PTim; 
+      T     #Fnd[0].PTim; 
+
+      JU    MEND; 
+MP1:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[1].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[1].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[1].LinID; 
+      L     #PTim; 
+      T     #Fnd[1].PTim; 
+
+      JU    MEND; 
+MP2:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[2].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[2].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[2].LinID; 
+      L     #PTim; 
+      T     #Fnd[2].PTim; 
+
+      JU    MEND; 
+MP3:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[3].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[3].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[3].LinID; 
+      L     #PTim; 
+      T     #Fnd[3].PTim; 
+
+      JU    MEND; 
+MP4:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[4].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[4].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[4].LinID; 
+      L     #PTim; 
+      T     #Fnd[4].PTim; 
+
+      JU    MEND; 
+MP5:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[5].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[5].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[5].LinID; 
+      L     #PTim; 
+      T     #Fnd[5].PTim; 
+
+      JU    MEND; 
+MP6:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[6].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[6].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[6].LinID; 
+      L     #PTim; 
+      T     #Fnd[6].PTim; 
+
+      JU    MEND; 
+MP7:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[7].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[7].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[7].LinID; 
+      L     #PTim; 
+      T     #Fnd[7].PTim; 
+
+      JU    MEND; 
+MP8:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[8].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[8].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[8].LinID; 
+      L     #PTim; 
+      T     #Fnd[8].PTim; 
+
+      JU    MEND; 
+MP9:  SET   ; 
+      A     DBX   66.1; // .Seq.Switch.Sw1 // Priority
+      =     #Fnd[9].Prio; 
+
+      L     #loopSrcID; 
+      T     #Fnd[9].SrcID; 
+      L     #loopLinID; 
+      T     #Fnd[9].LinID; 
+      L     #PTim; 
+      T     #Fnd[9].PTim; 
+
+      JU    MEND; 
+
+MEND: NOP   0; 
+
+      L     #cntFoundMat; 
+      INC   1; 
+      T     #cntFoundMat; 
+
+//------------------------------------------------------------------------
+// -- Loop End -----------------------------------------------------------
+//------------------------------------------------------------------------
+      L     #LoopCnt; 
+      LOOP  NXT1; // <-- GoTo next Unit
+END1: R     "OrgPFT"; 
+
+
+
+
+
+
+
+      L     #Fnd[0].SrcID; 
+      L     #Fnd[1].SrcID; 
+      L     #Fnd[2].SrcID; 
+      L     #Fnd[3].SrcID; 
+      L     #Fnd[4].SrcID; 
+      L     #Fnd[5].SrcID; 
+      L     #Fnd[6].SrcID; 
+      L     #Fnd[7].SrcID; 
+      L     #Fnd[8].SrcID; 
+      L     #Fnd[9].SrcID; 
+
+
+
+      L     #cntFoundMat; 
+      L     0; 
+      ==I   ; 
+      JC    FIN; // No Material Found
+
+NETWORK
+TITLE =Get Source Equipment Locations
+
+
+// Init Loop Counter
+      L     #cntFoundMat; // Material Array Counter
+NXT2: T     #LoopCnt; 
+
+// Read Material location Info
+      L     #LoopCnt; 
+      JL    MIE; 
+      JU    MIE; 
+      JU    MI0; 
+      JU    MI1; 
+      JU    MI2; 
+      JU    MI3; 
+      JU    MI4; 
+      JU    MI5; 
+      JU    MI6; 
+      JU    MI7; 
+      JU    MI8; 
+      JU    MI9; 
+MIE:  NOP   0; 
+      JU    MIND; 
+MI0:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[0],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI1:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[1],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI2:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[2],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI3:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[3],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI4:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[4],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI5:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[5],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI6:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[6],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI7:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[7],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI8:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[8],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MI9:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[9],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MIND; 
+MIND: NOP   0; 
+
+
+// Find Source --------------------------------------------
+// Compare Prio
+      AN    #Src[0].Prio; 
+      A     #Cur.Prio; 
+      JC    Src1; // Found
+      A     #Src[0].Prio; 
+      AN    #Cur.Prio; 
+      JC    NxM; // Next Material
+// Compare Process Time
+      L     #Src[0].PTim; 
+      L     #Cur.PTim; // Find highest PTim
+      <=R   ; 
+      JC    Src1; // Found
+      JU    NxM; // Next Material
+Src1: NOP   0; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Cur,
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Src[0]);// Source found
+
+NxM:  NOP   0; 
+// Loop to next Material --------------------------------------
+      L     #LoopCnt; 
+      LOOP  NXT2; 
+
+
+
+
+
+
+
+
+
+      L     #Src[0].SrcID; 
+
+
+
+
+NETWORK
+TITLE =Get Standby Equipment Locations
+
+// Init Loop Counter
+      L     #cntFoundMat; // Material Array Counter
+NXT3: T     #LoopCnt; 
+
+// Read Material location Info
+      L     #LoopCnt; 
+      JL    MSE; 
+      JU    MSE; 
+      JU    MS0; 
+      JU    MS1; 
+      JU    MS2; 
+      JU    MS3; 
+      JU    MS4; 
+      JU    MS5; 
+      JU    MS6; 
+      JU    MS7; 
+      JU    MS8; 
+      JU    MS9; 
+MSE:  NOP   0; 
+      JU    MSND; 
+MS0:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[0],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS1:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[1],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS2:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[2],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS3:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[3],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS4:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[4],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS5:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[5],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS6:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[6],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS7:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[7],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS8:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[8],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MS9:  SET   ; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Fnd[9],
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Cur);
+      JU    MSND; 
+MSND: NOP   0; 
+
+// Find StandBy -------------------------------------------
+// Check if same as Src Goto Next
+      L     #Src[0].SrcID; 
+      L     #Cur.SrcID; 
+      ==D   ; 
+      JC    NxM2; // Next Material
+// Compare Prio
+      AN    #Src[1].Prio; 
+      A     #Cur.Prio; 
+      JC    Src2; // Found
+      A     #Src[1].Prio; 
+      AN    #Cur.Prio; 
+      JC    NxM2; // Next Material
+// Compare Process Time
+      L     #Src[1].PTim; 
+      L     #Cur.PTim; // Find highest PTim
+      <=R   ; 
+      JC    Src2; // Found
+      JU    NxM2; // Next Material
+Src2: NOP   0; 
+      CALL "BLKMOV" (
+           SRCBLK                   := #Cur,
+           RET_VAL                  := #iRetVal,
+           DSTBLK                   := #Src[1]);// Source found
+
+NxM2: NOP   0; 
+// Loop to next Material --------------------------------------
+      L     #LoopCnt; 
+      LOOP  NXT3; 
+
+NETWORK
+TITLE =Finalize
+
+FIN:  NOP   0; 
+
+// Write Results to Out Vars
+      L     #EqID; 
+      L     1.000000e+000; // Auto Select
+      ==R   ; 
+      O(    ; 
+      L     #EqID; 
+      L     0.000000e+000; // No Select
+      ==R   ; 
+      )     ; 
+      JCN   EqD1; 
+      L     #Src[0].SrcID; 
+      T     #EqID; 
+EqD1: NOP   0; 
+
+      L     #EqID2; 
+      L     1.000000e+000; // Auto Select
+      ==R   ; 
+      JCN   EqD2; 
+      L     3.000000e+000; // Material Not found
+      L     #Src[1].SrcID; 
+      ==R   ; 
+      JCN   Def0; 
+      L     0.000000e+000; // Reset to 0 if no Material found
+Def0: T     #EqID2; 
+EqD2: NOP   0; 
+END_FUNCTION
+

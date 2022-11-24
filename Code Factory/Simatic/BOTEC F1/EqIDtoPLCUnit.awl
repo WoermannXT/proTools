@@ -1,0 +1,23 @@
+      
+	  L     #realEqID; 
+      RND   ; 
+	  T     #EqID; 
+      L     1000; // Remove Unit Number
+      /D   ; 
+      T     #PLCNo; // Define PLC Number
+	  L     #EqID; 
+      L     1000; // Remove PLC Number
+      MOD   ; 
+      T     #UNo; // Define Unit Number
+
+
+      L     #PLCNo; // PLC Number
+      L     1000;
+      *D   ; 
+      L     #UNo; // Unit Number
+	  T     #EqID; 
+      DTR   ; 
+	  T     #realEqID; 
+ 	  
+
+

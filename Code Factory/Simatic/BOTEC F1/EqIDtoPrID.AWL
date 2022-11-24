@@ -1,0 +1,70 @@
+FUNCTION "EqIDtoPrID" : VOID
+TITLE =EqID (Equipment ID) to PrID (Process ID)
+//Only for local PLC, doesnt look at other PLCs. Use Unit Number or Equipment ID 
+//to get PrID of that Unit from the SeqDB.DBD46 (UxSeqDB.Seq.PrId)
+AUTHOR : Woermann
+FAMILY : BOTEC
+NAME : BF1
+VERSION : 0.1
+
+
+VAR_INPUT
+  EqID : REAL ;	//Equipment ID or Unit Number
+END_VAR
+VAR_OUTPUT
+  PrID : DINT ;	//Process ID
+END_VAR
+VAR_TEMP
+  UNo : INT ;	
+  DNo : INT ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =Init
+
+      L     0; 
+      T     #PrID; // Initialize PrID with 0
+
+      L     #EqID; 
+      RND   ; 
+      L     1000; // Remove PLC Number
+      MOD   ; 
+      T     #UNo; // Define Unit Number
+      L     0; 
+      <I    ; 
+      BEC   ; // Unit Number below 0
+
+NETWORK
+TITLE =Get PrID
+
+      OPN   "UOrg"; // Open DB 40
+      L     DBLG; 
+
+      L     #UNo; // Unit Number
+      L     2; // Struct Len
+      *I    ; 
+      L     10; // Offset Struct 0
+      +I    ; 
+      L     DBLG; // read DB40 length
+      >=I   ; 
+      BEC   ; // Unit not in DB 40
+      TAK   ; 
+      SLD   3; 
+      LAR1  ; 
+      L     DBW [AR1,P#0.0]; // read Unit AP DB No (INT)
+      T     #DNo; 
+      L     0; 
+      <=I   ; 
+      BEC   ; // Unit not in DB 40
+      OPN   DB [#DNo]; // Open Unit AP DB
+      L     DBW    4; // read SeqDB Number (INT)
+      T     #DNo; 
+      L     0; 
+      <=I   ; 
+      BEC   ; // SeqDB not in AP DB
+      OPN   DB [#DNo]; // Open Unit SeqDB
+      L     DBD   46; // read SeqDB Prid (DINT)
+      T     #PrID; 
+
+END_FUNCTION
+
