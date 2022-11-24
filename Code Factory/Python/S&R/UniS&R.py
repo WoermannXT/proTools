@@ -1,6 +1,6 @@
 
 '''
-Search and Replace Script to to 
+Search and Replace Script
 Note:
 If no Destinatin is defined, the source will be replaced!
 For Help use:
