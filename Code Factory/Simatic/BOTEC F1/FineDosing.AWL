@@ -6,9 +6,9 @@ VERSION : 0.1
 
 VAR_INPUT
   FDTime : REAL ;	//Fine Dosing Time in seconds (eg. 3.5 sec)
-  Amount : REAL ;	//Amount left to dose
-  Flow : REAL ;	//Flow in Amount / sec
-  FlowMax : REAL ;	//Maximum Flow in Amount / sec
+  Amount : REAL ;	//Amount (x) left to dose
+  Flow : REAL ;	//Flow in x/sec
+  FlowMax : REAL ;	//Maximum Flow in x/sec
   Init : BOOL ;	//Initialize Control (SOS?PFC)
 END_VAR
 VAR_OUTPUT
