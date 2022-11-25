@@ -38,7 +38,7 @@ TITLE =Init
       L     0.000000e+000; 
       <=R   ; 
       JC    fin; 
-// Check Values
+// Check Delta
       TAK   ; 
       SRD   23; 
       L     #CntVal; 
