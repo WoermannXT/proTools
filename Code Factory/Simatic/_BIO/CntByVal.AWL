@@ -1,0 +1,82 @@
+FUNCTION "CntByVal" : VOID
+TITLE =Count By Value
+//Only counting on increase of RefVal, decrease is interpreted as a reset and not 
+//counted. To count decreasing values multiply with -1 before. A vlaue check is 
+//done to increase the accuracy of adding small values to a high counter value. 
+//If the delta is too small, the addition is skipped until it is in a range with 
+//an acceptable error 
+AUTHOR : Woermann
+VERSION : 0.1
+
+
+VAR_INPUT
+  RefVal : REAL ;	//Reference Counter Value
+  Active : BOOL ;	//Conter is Active, False = Paused
+  Reset : BOOL ;	//Reset Counter to Zero
+  Down : BOOL ;	//Count Down
+END_VAR
+VAR_IN_OUT
+  CntVal : REAL ;	//Current Counter Value
+  RefMem : REAL ;	//Memory to remember previous Reference Value
+END_VAR
+VAR_TEMP
+  rD : REAL ;	//Delta
+END_VAR
+BEGIN
+NETWORK
+TITLE =Init
+
+// Pause
+      A     #Active; 
+      AN    #Reset; 
+      JCN   fin; 
+// Calculate Delta
+      L     #RefVal; 
+      L     #RefMem; 
+      -R    ; 
+      T     #rD; 
+      L     0.000000e+000; 
+      <=R   ; 
+      JC    fin; 
+// Check Values
+      TAK   ; 
+      SRD   23; 
+      L     #CntVal; 
+      SLD   1; 
+      SRD   24; 
+      TAK   ; 
+      -D    ; 
+      L     L#20; // Accuracy Threshold dex=2^20
+      >D    ; 
+      JC    skp; 
+NETWORK
+TITLE =Counter
+
+      A     #Down; 
+      JC    DWN; 
+      L     #CntVal; 
+      L     #rD; 
+      +R    ; 
+      T     #CntVal; 
+      JU    NXT; 
+DWN:  NOP   0; 
+      L     #CntVal; 
+      L     #rD; 
+      -R    ; 
+      T     #CntVal; 
+NXT:  NOP   0; 
+NETWORK
+TITLE =Finalize
+
+fin:  NOP   0; 
+// Save data
+      L     #RefVal; 
+      T     #RefMem; 
+// Reset
+skp:  AN    #Reset; 
+      BEC   ; 
+      L     0.000000e+000; 
+      T     #CntVal; 
+
+END_FUNCTION
+
