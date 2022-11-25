@@ -35,7 +35,7 @@ TITLE =Init
       L     #RefMem; 
       -R    ; 
       T     #rD; 
-      L     0.000000e+000; 
+      L     0; 
       <=R   ; 
       JC    fin; 
 // Check Delta
@@ -75,7 +75,7 @@ fin:  NOP   0;
 // Reset
 skp:  AN    #Reset; 
       BEC   ; 
-      L     0.000000e+000; 
+      L     0; 
       T     #CntVal; 
       BE    ;
 
