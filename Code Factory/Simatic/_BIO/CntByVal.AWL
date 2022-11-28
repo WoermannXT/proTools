@@ -2,11 +2,11 @@ FUNCTION "CntByVal" : VOID
 TITLE =Count By Value
 //Only counting on increase of RefVal, decrease is interpreted as a reset and not 
 //counted. To count decreasing values multiply with -1 before. A vlaue check is 
-//done to increase the accuracy of adding small values to a high counter value. 
-//If the delta is too small, the addition is skipped until it is in a range with 
-//an acceptable error 
+//done to increase the accuracy of adding small values to a high counter value, 
+//if the delta is too small (Accuracy Threshold Delta Exponent 2^16), the 
+//addition is skipped until it is in a range with an acceptable error. 
 AUTHOR : Woermann
-VERSION : 0.2
+VERSION : 0.1
 
 
 VAR_INPUT
@@ -21,6 +21,7 @@ VAR_IN_OUT
 END_VAR
 VAR_TEMP
   rD : REAL ;	//Delta
+  rE : REAL ;	//Error
 END_VAR
 BEGIN
 NETWORK
@@ -29,16 +30,16 @@ TITLE =Init
 // Pause
       A     #Active; 
       AN    #Reset; 
-      JCN   fin; 
+      JCN   FIN; 
 // Calculate Delta
       L     #RefVal; 
       L     #RefMem; 
       -R    ; 
       T     #rD; 
-      L     0; 
+      L     0.000000e+000; 
       <=R   ; 
-      JC    fin; 
-// Check Delta
+      JC    FIN; 
+// Check Values
       TAK   ; 
       SRD   23; 
       L     #CntVal; 
@@ -46,9 +47,9 @@ TITLE =Init
       SRD   24; 
       TAK   ; 
       -D    ; 
-      L     L#20; // Accuracy Threshold dex=2^20
+      L     L#16; // Accuracy Threshold dex=2^16
       >D    ; 
-      JC    skp; 
+      JC    SKP; 
 NETWORK
 TITLE =Counter
 
@@ -68,16 +69,15 @@ NXT:  NOP   0;
 NETWORK
 TITLE =Finalize
 
-fin:  NOP   0; 
+FIN:  NOP   0; 
 // Save data
       L     #RefVal; 
       T     #RefMem; 
 // Reset
-skp:  AN    #Reset; 
+      AN    #Reset; 
       BEC   ; 
-      L     0; 
+      L     0.000000e+000; 
       T     #CntVal; 
-      BE    ;
-
+SKP:  BE    ; 
 END_FUNCTION
 
