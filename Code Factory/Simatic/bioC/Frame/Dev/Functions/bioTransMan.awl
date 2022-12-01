@@ -1,0 +1,29 @@
+﻿FUNCTION "bioTransMan" : Void
+TITLE = Batch I/O Transfer Manager
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+//Block to Unify and Manage Transfer Communication Signals
+	VAR_INPUT 
+		Master : Bool;   // True if this is the Transfer Master
+		LocalID : DInt;   // Local ID like PrID or selected Equipment
+		PartnerID : DInt;   // Partner ID like PrID or Equipment
+	END_VAR
+
+	VAR_OUTPUT 
+		Start : Bool;   // Start Transfer
+	END_VAR
+
+	VAR_IN_OUT 
+		rtGet : Bool;   // Need new Text
+		rtPut : Bool;
+		reGet : Bool;
+		rePut : Bool;   // Release / Request Put
+	END_VAR
+
+
+BEGIN
+NETWORK
+TITLE = 
+END_FUNCTION
+

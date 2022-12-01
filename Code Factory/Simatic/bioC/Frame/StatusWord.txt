@@ -1,0 +1,22 @@
+0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	
+1.7	1.6	1.5	1.4	1.3	1.2	1.1	1.0	0.7.0.6	0.5	0.4	0.3	0.2	0.1	0.0
+
+
+		Act		Sig		PID			Val		Set
+
+Alm		x		x		x			x		
+AlmS	x		x		x			x		
+EAlm	x		x		x			x		
+Wrn		x		x		x			x		
+EWrn	x		x		x			x		
+Sim		x		x		x			x		
+Ign		x		x		x			x		
+											
+Off		x		x		x		LLS	x		
+On		x		x		x		HHS	x		
+MOff	x		x		x		LS	x		
+MOn		x		x		x		HS	x		
+Rel		x				x					
+Auto	x				x					
+
+

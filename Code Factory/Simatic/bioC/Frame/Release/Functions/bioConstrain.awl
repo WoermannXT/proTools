@@ -1,0 +1,55 @@
+FUNCTION "bioCon" : Void
+TITLE = Constrain (Limit) Value
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// -- Woermann Automation --
+// Constrain (Limit) Value
+// Date: 2020-06-26
+// Description:
+// Constrain a Value to its boundaries
+// See Siemens Funktion LIMIT as alternative
+// -- Inputs --
+// On: Activate Constrain if TRUE, else the Output Value (OVal) equals Input Value (IVal) unlimited
+// InVal: Process Value (Measured Value)
+// OutMin: Minimum Output Value (OVal)
+// OutMax: Maximum Output Value (OVal)
+// -- Outputs --
+// OutVal: Output Value Calculated by this Function 
+
+
+	VAR_INPUT 
+		On : Bool; // Activate Constrain
+		InVal : Real; 	// Input Value
+		OutMin : Real;	// Minimum Output Value
+		OutMax : Real;	// Maximum Output Value
+	END_VAR
+
+	VAR_OUTPUT 
+		OutVal : Real;	// Output Value
+	END_VAR
+
+	VAR_IN_OUT  
+	END_VAR
+
+	VAR_TEMP 
+	END_VAR
+
+BEGIN
+	NETWORK
+	TITLE = Constrain Input Value
+		L	#InVal;
+		A	#On;
+		JCN	FIN;
+		L	#OutMax;
+		>R;
+		JC	FIN;
+		TAK;
+		L	#OutMin;
+		<R;
+		JC	FIN;
+		TAK;
+	FIN:T	#OutVal;
+
+END_FUNCTION
+

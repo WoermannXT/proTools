@@ -1,0 +1,97 @@
+﻿FUNCTION "bioPoT" : Void
+TITLE = Batch I/O Polygon Table Processing
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.4
+// Batch I/O Polygon Table Processing
+// by Woermann Automation
+// Date: 2020-08-28
+// Description:
+// Dependencies:
+// bioMap
+
+	VAR_INPUT
+		me : "bioPoT.DT"; // Polygon Table
+		Raw : Real;		// Raw Value
+	END_VAR
+
+	VAR_OUTPUT 
+		Val : Real;		// Calculated Value
+	END_VAR
+
+	VAR_IN_OUT 
+	END_VAR
+
+	VAR_TEMP 
+		_lch : Int;		// Loop Counter High
+		_lcl : Int;		// Loop Counter Low
+		_of : Bool;			// Overflow
+		_uf : Bool;			// Underflow
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		SET;
+		=	#_of;
+		CLR;
+		=	#_uf;
+	// --- Find Position ------------------------
+		L	16;
+	LOOP:T	#_lch;
+		DEC 1;
+		T	#_lcl;
+		L	#me.Raw[#_lcl];
+		L	#Raw;
+		>R;
+		JC	BRK;
+		=	#_of;
+		L	#_lch;
+		JC    LOOP;
+		SET;
+		=	#_uf;	// Raw Value below Raw[0]
+	BRK: NOP 0;
+
+
+	NETWORK
+	TITLE = Procesing
+		SET;
+		A 	#_of; 	// Raw Value above Raw[15]
+		JCN	OFC;
+		L 	#_lcl;
+		DEC 1;
+		T	#_lch;
+
+		CALL "bioMap"
+		(	InVal	:= #Raw , 
+			InMin	:= #me.Raw[#_lch] , 
+			InMax	:= #me.Raw[#_lcl] , 
+			OutMin	:= #me.Val[#_lch] , 
+			OutMax	:= #me.Val[#_lcl] , 
+			Limit	:= FALSE , 
+			OutVal	:= #Val
+		);
+
+		JU	END;
+	OFC:NOP 0;
+		CALL "bioMap"
+		(	InVal	:= #Raw , 
+			InMin	:= #me.Raw[#_lcl] , 
+			InMax	:= #me.Raw[#_lch] , 
+			OutMin	:= #me.Val[#_lcl] , 
+			OutMax	:= #me.Val[#_lch] , 
+			Limit	:= FALSE , 
+			OutVal	:= #Val
+		);
+
+	END: NOP 0;
+
+
+	NETWORK
+	TITLE = Finalise
+		SET;
+
+
+END_FUNCTION
+

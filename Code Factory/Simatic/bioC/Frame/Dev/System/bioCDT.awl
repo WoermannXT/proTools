@@ -1,0 +1,373 @@
+﻿FUNCTION "bioCDT" : Void
+TITLE = Batch I/O Cycle, Clock, Date and Time Control
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// Batch I/O Cycle, Clock, Date and Time Control:
+// by Woermann Automation
+// Under Construction!!!
+// Time Base Calculation has to be mode more exact and robust. 
+// Count with max three digits to increase accuracy 
+// Day-86.400ms; Hour-3.600ms; Minute-60ms; Second-1ms
+// Dependencies:
+
+	VAR_INPUT 
+		ClkCPU : Byte;		// Clock Byte From CPU
+	END_VAR
+
+	VAR_OUTPUT 
+	END_VAR
+
+	VAR_IN_OUT  
+	END_VAR
+
+	VAR_TEMP
+		_DTVal {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;	// Date Time Current Value
+		_DTSetP {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;	// Date Time Setpoint
+		_iCycTims : Int;	// Cycle Time in ms
+		_CycCnt : Byte;	// Internal Cycle Counter
+		_CycCntE : Byte;	// Internal Cycle Counter Edge
+		_dTmp : Dint;
+		_iTmp : Int;
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Init ------------------------------------------------------------------------
+		SET;
+
+
+	NETWORK
+	TITLE = Clock
+	// CPU Clock Memory Evaluation and creating Clock Flags -----------------------------
+		SET;
+	// --- CPU Clock Change Edge ----------------
+		L 	"bioCDT.DB".Clock.ClkCPU;
+		L	#ClkCPU;
+		XOW;
+		AW;
+		T	"bioCDT.DB".Clock.ClkCPUE;
+		L	#ClkCPU;	
+		T 	"bioCDT.DB".Clock.ClkCPU;
+
+	// --- CPU Clock to Bits --------------------
+		A	#ClkCPU.%X0;
+		=	"bioCDT.DB".Clock.Clk01;
+		A	#ClkCPU.%X1;
+		=	"bioCDT.DB".Clock.Clk02;
+		A	#ClkCPU.%X2;
+		=	"bioCDT.DB".Clock.Clk04;
+		A	#ClkCPU.%X3;
+		=	"bioCDT.DB".Clock.Clk05;
+		A	#ClkCPU.%X4;
+		=	"bioCDT.DB".Clock.Clk08;
+		A	#ClkCPU.%X5;
+		=	"bioCDT.DB".Clock.Clk10;
+		A	#ClkCPU.%X6;
+		=	"bioCDT.DB".Clock.Clk16;
+		A	#ClkCPU.%X7;
+		=	"bioCDT.DB".Clock.Clk20;
+
+	// --- CPU Clock to Bits --------------------
+		A	"bioCDT.DB".Clock.Clk1E2;
+		=	"bioCDT.DB".Clock.Clk1E3;
+
+		A	"bioCDT.DB".Clock.Clk1E1;
+		=	"bioCDT.DB".Clock.Clk1E2;
+
+		A	"bioCDT.DB".Clock.Clk1E;
+		=	"bioCDT.DB".Clock.Clk1E1;
+
+		A	"bioCDT.DB".Clock.Clk10;
+		FP	"bioCDT.DB".Clock._Clk1Mem;
+		=	"bioCDT.DB".Clock.Clk1E;
+
+	// --- CPU Clock Timers ---------------------
+		AN	"bioCDT.DB".Clock.Clk1E;
+		R	"bioCDT.DB".Clock.Clk2E;
+		R	"bioCDT.DB".Clock.Clk6E;
+		R	"bioCDT.DB".Clock.Clk10E;
+		R	"bioCDT.DB".Clock.Clk60E;
+		R	"bioCDT.DB".Clock.Clk360E;
+		JC	NCYC;
+	// --- 2 Seconds --------
+		A	"bioCDT.DB".Clock.Clk1E;
+		X	"bioCDT.DB".Clock._Clk2Mem;
+		=	"bioCDT.DB".Clock._Clk2Mem;
+	
+		A	"bioCDT.DB".Clock.Clk1E;
+		A	"bioCDT.DB".Clock._Clk2Mem;
+		=	"bioCDT.DB".Clock.Clk2E;
+	// --- 6 Seconds --------
+		L	"bioCDT.DB".Clock._Clk6Mem;
+		+	1;
+		T	"bioCDT.DB".Clock._Clk6Mem;
+		L	6;
+		<I;
+		JC	NC6;
+		=	"bioCDT.DB".Clock.Clk6E;
+		L	0;	
+		T	"bioCDT.DB".Clock._Clk6Mem;
+	// --- 10 Seconds -------
+	NC6:L	"bioCDT.DB".Clock._Clk10Mem;
+		+	1;
+		T	"bioCDT.DB".Clock._Clk10Mem;
+		L	10;
+		<I;
+		JC	NC10;
+		=	"bioCDT.DB".Clock.Clk10E;
+		L	0;	
+		T	"bioCDT.DB".Clock._Clk10Mem;
+	// --- 60 Seconds -------
+	NC10:L	"bioCDT.DB".Clock._Clk60Mem;
+		+	1;
+		T	"bioCDT.DB".Clock._Clk60Mem;
+		L	60;
+		<I;
+		JC	NC60;
+		=	"bioCDT.DB".Clock.Clk60E;
+		L	0;	
+		T	"bioCDT.DB".Clock._Clk60Mem;
+	// --- 360 Seconds ------
+	NC60:L	"bioCDT.DB".Clock._Clk360Mem;
+		+	1;
+		T	"bioCDT.DB".Clock._Clk360Mem;
+		L	360;
+		<I;
+		JC	NCYC;
+		=	"bioCDT.DB".Clock.Clk360E;
+		L	0;
+		T	"bioCDT.DB".Clock._Clk360Mem;
+	NCYC:NOP	0;
+
+
+	NETWORK
+	TITLE = System Time
+	// Cycle Time Calculation and creating Base Values for Timers -----------------------
+		SET;
+	// --- Get System Time from 0 to a maximum of 2147483647 ms
+		CALL  "TIME_TCK"
+		(	RET_VAL 	:="bioCDT.DB".SysTime.Sys.Act
+		);
+
+	// --- Initialise Timer at first Cycle ------
+		AN	"bioCDT.DB".Cycle.Init;
+		JC	INIT;
+		L 	"bioCDT.DB".SysTime.Sys.Act;
+		T 	"bioCDT.DB".SysTime.Sys.Old;
+
+		L 	0.0;
+		T 	"bioCDT.DB".SysTime._mtS;
+		T 	"bioCDT.DB".SysTime._mtM;
+		T 	"bioCDT.DB".SysTime._mtH;
+		T 	"bioCDT.DB".SysTime._mtD;
+	INIT: NOP 0;
+
+	// --- Delta System Time / Cycle Time -------
+		L 	"bioCDT.DB".SysTime.Sys.Act;
+		L 	"bioCDT.DB".SysTime.Sys.Old;
+		<D;
+		JC 	OvFl;
+		-D;
+		T 	"bioCDT.DB".SysTime.Sys.Delta;
+		T 	"bioCDT.DB".Cycle.iCycTm;
+	OvFl:L 	"bioCDT.DB".SysTime.Sys.Act;
+		T 	"bioCDT.DB".SysTime.Sys.Old;
+
+	// --- Milli Second Time Base ---------------
+		L	"bioCDT.DB".SysTime.Sys.Delta;
+		DTR;
+		T 	"bioCDT.DB".SysTime.dtMS;
+
+	// --- Second Time Base ---------------------
+		L	1000.0;
+		/R;
+		T 	"bioCDT.DB".SysTime.dtS;
+		T 	"bioCDT.DB".SysTime._dtSMem;
+
+	// --- Minute Time Base ---------------------
+		L	"bioCDT.DB".SysTime.Sys.Delta;
+		L 	"bioCDT.DB".SysTime._dtMMem;
+		+D;
+		T 	"bioCDT.DB".SysTime._dtMMem;
+		L	60;		// Minimum Change of 60 ms
+		<D;
+		JC	MinB;
+		L 	"bioCDT.DB".SysTime._dtMMem;
+		DTR;
+		L 	60000.0;
+		/R;
+		T 	"bioCDT.DB".SysTime.dtM;
+		L	0.0;
+		T 	"bioCDT.DB".SysTime._dtMMem;
+	MinB:NOP	0;
+
+	// --- Hour Time Base -----------------------
+		L	"bioCDT.DB".SysTime.Sys.Delta;
+		L 	"bioCDT.DB".SysTime._dtHMem;
+		+D;
+		T 	"bioCDT.DB".SysTime._dtHMem;
+		L	3600;		// Minimum Change of 3600 ms
+		<D;
+		JC	HouB;
+		L 	"bioCDT.DB".SysTime._dtHMem;
+		DTR;
+		L 	3600000.0;
+		/R;
+		T 	"bioCDT.DB".SysTime.dtH;
+		L	0.0;
+		T 	"bioCDT.DB".SysTime._dtHMem;
+	HouB:NOP	0;
+
+	// --- Day Time Base ------------------------
+		L	"bioCDT.DB".SysTime.Sys.Delta;
+		L 	"bioCDT.DB".SysTime._dtDMem;
+		+D;
+		T 	"bioCDT.DB".SysTime._dtDMem;
+		L	86400;		// Minimum Change of 86400 ms
+		<D;
+		JC	DayB;
+		L 	"bioCDT.DB".SysTime._dtDMem;
+		DTR;
+		L 	86400000.0;
+		/R;
+		T 	"bioCDT.DB".SysTime.dtD;
+		L	0.0;
+		T 	"bioCDT.DB".SysTime._dtDMem;
+	DayB:NOP	0;
+
+
+	NETWORK
+	TITLE = Date Time
+	// Date Time Management -------------------------------------------------------------
+		SET;
+	// --- Write SetP Date Time To CPU
+		AN 	"bioCDT.DB".DateTime.Set;
+		JC 	NSET;
+		CALL	"WR_LOC_T"
+		{loctime_type := 'DTL'}
+		(	LOCTIME			:="bioCDT.DB".DateTime.SetP,
+			DST				:=FALSE,
+			Ret_Val			:=#_iTmp
+		);
+	NSET:NOP	0;
+
+	// --- Write Val to SetP Date Time
+		AN 	"bioCDT.DB".DateTime.Get;
+		JC 	NGET;
+		CALL MOVE
+		{value_type := 'Variant'}
+		(	IN				:= "bioCDT.DB".DateTime.Val, 
+			OUT				:= "bioCDT.DB".DateTime.SetP
+		);
+	NGET:NOP	0;
+
+	// --- Save Previous Date Time Values
+		CALL MOVE
+		{value_type := 'Variant'}
+		(	IN				:= "bioCDT.DB".DateTime.Val, 
+			OUT				:= "bioCDT.DB".DateTime.Old
+		);
+
+	// --- Read Val Date Time from CPU
+		CALL	"RD_LOC_T"
+		{date_type := 'DTL'}
+		(	RET_VAL			:=#_iTmp,
+			OUT				:="bioCDT.DB".DateTime.Val
+		);
+
+	// --- Time Change Triggers
+		L	"bioCDT.DB".DateTime.Val.NANOSECOND;
+		L	"bioCDT.DB".DateTime.Old.NANOSECOND;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1SE;
+		
+		L	"bioCDT.DB".DateTime.Val.SECOND;
+		L	"bioCDT.DB".DateTime.Old.SECOND;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1SE;
+
+		L	"bioCDT.DB".DateTime.Val.MINUTE;
+		L	"bioCDT.DB".DateTime.Old.MINUTE;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1mE;
+
+		L	"bioCDT.DB".DateTime.Val.HOUR;
+		L	"bioCDT.DB".DateTime.Old.HOUR;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1hE;
+
+		L	"bioCDT.DB".DateTime.Val.DAY;
+		L	"bioCDT.DB".DateTime.Old.DAY;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1dE;
+
+		L	"bioCDT.DB".DateTime.Val.WEEKDAY;
+		L	"bioCDT.DB".DateTime.Old.WEEKDAY;
+		<I;
+		=	"bioCDT.DB".DateTime.DT1WE;
+
+		L	"bioCDT.DB".DateTime.Val.MONTH;
+		L	"bioCDT.DB".DateTime.Old.MONTH;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1MoE;
+		
+		L	"bioCDT.DB".DateTime.Val.YEAR;
+		L	"bioCDT.DB".DateTime.Old.YEAR;
+		<>I;
+		=	"bioCDT.DB".DateTime.DT1YE;
+
+
+	NETWORK
+	TITLE = Cycle
+	// Counting Cycles and creating Cycle Flags -----------------------------------------
+		SET;
+		L 	"bioCDT.DB".Cycle.iCnt;
+		INC 1;
+		T	#_CycCnt;
+		L 	"bioCDT.DB".Cycle.iCnt;
+		XOW;
+		AW;
+		T	#_CycCntE;
+		L	#_CycCnt;
+		T 	"bioCDT.DB".Cycle.iCnt;
+
+		L 	"bioCDT.DB".SysTime.Sys.Delta;
+		T	"bioCDT.DB".Cycle.iCycTm;
+
+		A	#_CycCntE.%X0;
+		=	"bioCDT.DB".Cycle.C2;
+		A	#_CycCntE.%X1;
+		=	"bioCDT.DB".Cycle.C4;
+		A	#_CycCntE.%X2;
+		=	"bioCDT.DB".Cycle.C8;
+		A	#_CycCntE.%X3;
+		=	"bioCDT.DB".Cycle.C16;
+		A	#_CycCntE.%X4;
+		=	"bioCDT.DB".Cycle.C32;
+		A	#_CycCntE.%X5;
+		=	"bioCDT.DB".Cycle.C64;
+		A	#_CycCntE.%X6;
+		=	"bioCDT.DB".Cycle.C128;
+		A	#_CycCntE.%X7;
+		=	"bioCDT.DB".Cycle.C256;
+
+
+	NETWORK
+	TITLE = Finalise --------------------------------------------------------------------
+	// Define Global Vars
+		L	#ClkCPU;
+		T 	"ClkCPU";
+		L	"bioCDT.DB".Clock.ClkCPUE;
+		T 	"ClkCPU.E";
+		L	#_CycCntE;
+		T 	"ClkCyc.E";
+		L	"bioCDT.DB".Cycle.iCycTm;
+		T 	"iCycTime";
+		DTR;
+		T 	"CycTime";
+
+
+END_FUNCTION
+

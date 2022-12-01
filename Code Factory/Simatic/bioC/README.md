@@ -1,6 +1,6 @@
-# Simatic
-A collection of functions and code snippets for the Step7 PLC. The code is written in the STL synthax. 
+# bioC
+Batch I/O Control System developed by Woermann Automation
 
-[General:](/General) Eniroment independent code
+[Frame:](/Frame) Batch I/O Control Framework
 
-[BOTEC F1:](/BOTEC%20F1) Code designed for the BOTEC F1 eviroment
+[Tech:](/Tech) Tenology Blocks

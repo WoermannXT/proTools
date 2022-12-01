@@ -1,0 +1,11 @@
+﻿TYPE "bioPoT.DT"
+VERSION : 0.1
+// Batch I/O Polygon Table Data Type:
+// by Woermann Automation
+	STRUCT
+		Raw : ARRAY[0..15] of Real;	// (I) Input Values 
+		Val : ARRAY[0..15] of Real;	// (I) Output Values			
+	END_STRUCT;
+
+END_TYPE
+

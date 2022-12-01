@@ -1,0 +1,85 @@
+﻿FUNCTION "bioSplitRange" : Void
+TITLE = Slit Range to two Values
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// -- Woermann Automation --
+// Slit Range to two Values
+// Date: 2020-07-05
+// Description:
+// Split the Value in a Range to two seperately defined Ranges. Commonly used for Split Range Controlls
+// Dependencies:
+// bioMap
+// -- Inputs --
+// On: Activate Range Slitter if TRUE, else the Output Value (OVal) is set to OMin
+// InVal: Process Value (Measured Value)
+// InMinO1 : Minimum Reference (Input) Value for Output 1 
+// InMaxO1 : Maximum Reference (Input) Value for Output 1
+// Out1Min : Output 1 Minimum Output Value
+// Out1Max : Output 1 Maximum Output Value		
+// InMinO2 : Minimum Reference (Input) Value for Output 2 
+// InMaxO2 : Maximum Reference (Input) Value for Output 2
+// Out2Min : Output 2 Minimum Output Value
+// Out2Max : Output 2 Maximum Output Value
+// -- Outputs --
+// Out1Val: Output 1 Value Calculated by this Function 
+// Out2Val: Output 2 Value Calculated by this Function 
+	VAR_INPUT 
+		On : Bool;   // Activate Constarin
+		InVal : Real;   // Input Value
+		InMinO1 : Real;   // Output 1 Minimum Input Value
+		InMaxO1 : Real;   // Output 1 Maximum Input Value
+		Out1Min : Real;   // Output 1 Minimum Output Value
+		Out1Max : Real;   // Output 1 Maximum Output Value
+		InMinO2 : Real;   // Output 2 Minimum Input Value
+		InMaxO2 : Real;   // Output 2 Maximum Input Value
+		Out2Min : Real;   // Output 2 Minimum Output Value
+		Out2Max : Real;   // Output 2 Maximum Output Value
+	END_VAR
+
+	VAR_OUTPUT 
+		Out1Val : Real;   // Output 1 Value
+		Out2Val : Real;   // Output 2 Value
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		A #On;
+		JCN RUN;
+		L #Out1Min;
+		T #Out1Val;
+		L #Out2Min;
+		T #Out2Val;
+		BEU;
+	RUN:      NOP 0;
+
+
+	NETWORK
+	TITLE = Calculate Output Value 1
+		CALL "bioMap"
+		(	InVal := #InVal , 
+			InMin := #InMinO1 , 
+			InMax := #InMaxO1 , 
+			OutMin := #Out1Min , 
+			OutMax := #Out1Max , 
+			Limit := TRUE , 
+			OutVal := #Out1Val
+		);
+
+
+	NETWORK
+	TITLE = Calculate Output Value 2
+		CALL "bioMap"
+		(	InVal := #InVal , 
+			InMin := #InMinO2 , 
+			InMax := #InMaxO2 , 
+			OutMin := #Out2Min , 
+			OutMax := #Out2Max , 
+			Limit := TRUE , 
+			OutVal := #Out2Val
+		);
+
+END_FUNCTION
+

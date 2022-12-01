@@ -1,0 +1,69 @@
+FUNCTION "TagName" : Void
+TITLE = Long Name
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// -- Woermann Automation --
+// Long Name
+// Date: yyyy-mm-Desired
+// Description:
+// Description of Functions, Formulas and other Interesting Info
+// retVal: Describe Return Value Data
+// h80: Function running OK
+// hxx: xyz
+
+	VAR_INPUT 
+		In1 : Bool; // Description
+	END_VAR
+
+	VAR_OUTPUT 
+		Out1 : Bool; // Description
+		retVal : Word; // Return Value (see Block Info for Detail)
+	END_VAR
+
+	VAR_IN_OUT  
+		InOut : Int;	// Description
+	END_VAR
+
+	VAR_TEMP 
+		_msg : Byte;
+		_rTmp : Real;
+	END_VAR
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		SET;
+	// Message and Return Value
+		L 16#80;
+		T #_msg;
+		L 0;
+		T #retVal;
+	// Further Inits
+		...
+
+	NETWORK
+	TITLE = Give Good Title
+		SET;
+	// Calc 1
+		L #x;
+		L #y;
+		/R;
+		A OV;
+		JCN E50
+		L 16#50;
+		T #_msg;
+		JU FIN;
+	E50: NOP 0;
+	// Calc 2
+		...
+
+	NETWORK
+	TITLE = Finalise
+	FIN: L #_msg;
+		T retVal;
+		...
+		BE;
+
+END_FUNCTION
+

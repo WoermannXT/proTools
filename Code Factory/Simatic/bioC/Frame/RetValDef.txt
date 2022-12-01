@@ -1,0 +1,14 @@
+RetVal:
+MSB----- LSB-----
+76543210 76543210
+
+LSB: Message Number
+All OK Message (No Message)
+BIN:1000 0000
+HEX:80
+DEC:128
+
+MSB: Status Byte
+8765 4321
+1=Div0
+2=...

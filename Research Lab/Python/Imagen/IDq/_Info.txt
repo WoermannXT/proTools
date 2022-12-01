@@ -10,10 +10,10 @@ Naming:
 	rawID = Raw File ID = md5 hash of file 	(128 bit, 900150983cd24fb0d6963f7d28e17f72)
 	srcStr = source (url or file location)
 	srcID = md5 hash of source (url or file location)
-	refStr = referer (url or file location)
-	refID = md5 hash of referer (url or file location)
+	refStr = referer (url)
+	refID = md5 hash of referer (url)
 
-Indexing:
+Index:
 	Key1 = visID (64 bit)
 	Key2 = mapID (128 bit)	
 	Key3 = rawID (128 bit)	

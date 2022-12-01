@@ -1,0 +1,107 @@
+Bath I/O PLC Framework
+
+System:
+CDT		Cycle, Clock, Date and Time Function
+Prt		Protocol Function ???
+
+
+
+Control Modules;
+Act		Actuator
+Sig		Signal (Digital); SpI
+-AnI	Analog Input > Value
+-AnO		Analog Output ???
+Val		Value Processing
+Set		Setpoint Processing
+PID		PID Controller
+VLT		VLT
+-Swi		> Signal
+
+Event Management:
+DTP		Date Time Planer
+EVA		Event Activity Manager		
+
+Batch Management:
+Seq		Sequencer
+Par		Parameter Manager
+Rec		Recipe Manager
+...
+
+Functions:
+Map		Value Remapping (Rescaling)
+Con		Value Constrain
+Flt		Filter
+PWM		Pulse Width Modulator
+Pow		Calculate y to the Power of x
+
+Standard Signals and Names
+Ini		Initialise
+Set		Settings
+Run		
+Stp		Stop
+Fin		Finalise
+
+S	Set | Start	
+R	Reset | Stop
+P	Pause | Halt
+
+
+
+V	Val		Value
+Sp			Setpoint
+S	Sig		Signal
+
+// Alarms are Logged and Visible on Screen
+Al		Alarm
+EAl		Enable Alarm
+GAl		General Alarm
+GAlS	General Alarm Saved
+GAlTOnSP
+GAlTOnV
+// Warnings are Visible on Screen
+Wrn		Warning
+// Information is Visible in dedicated space
+Inf		Information
+
+
+WDT		Watch Dog Timer
+
+T 	Tim		Time(r)
+TOn		Time On
+TOff	Time Off
+
+TOnSp
+TOnV
+
+// Value Comparisson
+MAX	Maximum
+HH	High High
+H	High
+L	Low  
+LL	Low Low 
+MIN Minimum
+
+MAXV
+HHV	High High Value
+HV	High Value
+LV	Low Value 
+LLV	Low Low Value
+MINV
+
+MAXS
+HHS	High High Signal
+HS	High Signal
+LS	Low Signal 
+LLS	Low Low Signal
+MINS
+
+// Statistics
+Stat
+
+Avg		Average
+Cnt		Counter
+Sum		Sum
+
+AvgCnt
+AvgSum
+

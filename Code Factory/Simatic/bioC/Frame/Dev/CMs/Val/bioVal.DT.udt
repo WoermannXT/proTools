@@ -1,0 +1,43 @@
+﻿TYPE "bioVal.DT"
+VERSION : 0.1
+// Batch I/O Value Data Type:
+// by Woermann Automation
+	STRUCT
+		Val :  Real;   // (O) Value (Processed)
+		Raw :  Real;   // (I) Raw Value
+
+		Typ : Byte;   // (I) Type
+
+		HScal { S7_SetPoint := 'True'} :  Real := 100.0;   // (I) High Scale
+		LScal { S7_SetPoint := 'True'} :  Real := 0.0;   // (I) Low Scale
+
+		HHVal { S7_SetPoint := 'True'} :  Real := 100.0;   // (I) High High Value
+		HVal { S7_SetPoint := 'True'} :  Real := 50.0;   // (I) High Value
+		LVal { S7_SetPoint := 'True'} :  Real := 10.0;   // (I) Low Value
+		LLVal { S7_SetPoint := 'True'} :  Real := 0.0;   // (I) Low Low Value
+
+		HHS :  Bool;   // (O) High High Signal
+		HS :  Bool;   // (O) High Signal
+		LS :  Bool;   // (O) Low Signal
+		LLS :  Bool;   // (O) Low Low Signal
+
+		Gain { S7_SetPoint := 'True'} :  Real := 1.0;   // (I) Raw Value Gain (1. Calibration)
+		OffS { S7_SetPoint := 'True'} :  Real := 0.0;   // (I) Raw Value Offset (2. Calibration)
+		PoT { S7_SetPoint := 'True'} :  Int := 0;   // (I) Number of Polygon Table (0 = Inactive)
+
+		EFlt { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Filter
+		FltAlpha { S7_SetPoint := 'True'} :  Real := 0.1;   // (I) Filter Factor (Alpha)
+		FltMin { S7_SetPoint := 'True'} :  Real := 0.0;   // (I) Filter Hysteresis Minimum
+		FltMax { S7_SetPoint := 'True'} :  Real := 0.0;   // (I) Filter Hysteresis Maximum
+
+		Alm :  Bool;   // (O) Alarm
+		AlmS :  Bool;   // (O) Alarm Saved (Not Ackknowledged)
+		EAlm { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Alarm Evaluation
+		AlmTSetP { S7_SetPoint := 'True'} : Real := 10.0;   // (I) Alarm Time Delay Setpoint
+		AlmTVal : Real := 0.0;   // (I/O) Alarm Time Delay
+		Wrn :  Bool;   // (O) Warning
+		EWrn { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Warning Evaluation
+	END_STRUCT;
+
+END_TYPE
+

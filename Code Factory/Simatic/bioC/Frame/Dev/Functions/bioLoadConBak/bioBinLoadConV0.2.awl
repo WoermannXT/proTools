@@ -1,0 +1,145 @@
+﻿FUNCTION "bioBinLoadCon" : Void
+TITLE = Batch I/O Binary Load Control
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.2
+// Under Construction!!!
+// Dependencies:
+// bioBitCnt; bioReal2Step; 
+// Description:
+// Control multiple motors / valves (Drivers) according to the load requirement
+// This block activates the drivers in a circular bit sequence to equalise activation 
+// counts and run times. 
+// |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|
+// |          _startp|           _onmap|
+
+	VAR_INPUT 
+		SetP : Int;		// Setpoint for Number of Running Drivers
+		RelMap : Int;	// Map of Released Drivers (Bitmap)
+	END_VAR
+
+	VAR_OUTPUT 
+		Val : Int;		// Number of Drivers Activted
+		RunMap : Int;	// Map of Activated Drivers (Bitmap)
+	END_VAR
+
+	VAR_IN_OUT  
+		remStat : Dint;	// Rem Status
+	END_VAR
+
+	VAR_TEMP
+		_onmap : Word;	// Switched on Range
+		_startp : Word;	// Start Pointer
+		_Max : Bool;	// Maximum Number of Running Drivers 
+		_Min : Bool;	// Minimum Number of Running Drivers 
+		_dTmp : Dint;
+		_iTmp : Int;
+		_xTmp : Bool;
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Init ------------------------------------------------------------------------
+		SET;
+	// --- Get ON Map ---------------------------
+		L	#remStat;
+		L	16#FFFF;
+		AW;
+		T	#_onmap;	
+
+	// --- Get Start Map ------------------------
+		L	#remStat;
+		SRD	16;
+		L	16#FFFF;
+		AW;
+		T	#_startp;	
+		L 	0;
+		==I;
+		S	#_startp.%X0; // Init Start Driver 1 if not defined
+
+
+	NETWORK
+	TITLE = Controller ------------------------------------------------------------------
+		SET;
+	// --- Calculate Run Map --------------------
+	RCHK:L	#_onmap;
+		L	#RelMap;
+		AW;
+		T	#RunMap;
+
+	// --- Minimum Map Reached ------------------
+		L	#_onmap;
+		L 	16#0000;
+		<=D;
+		= 	#_Min;
+
+	// --- Maximum Map Reached ------------------
+		L	#_onmap;
+		L	16#FFFF;
+		>=D;
+		= 	#_Max;
+
+	// --- Count Running Drivers ----------------
+		L 	#RunMap;
+		T 	#_dTmp;
+		CALL "bioBitCnt"
+		(  	InVal	:= #_dTmp, 
+			OutVal	:= #Val
+		);
+
+	// --- Check Increase Drivers ---------------
+		L 	#SetP;			// Setpoit
+		L 	#_Val;			// Value
+		>I;					// If Setpoint > Value	
+		AN 	#_Max;			// Max On Value
+		JCN ICM;			// --> End
+		A 	#_Min;			// No Driver On
+		JCN	INI;			// --> Init
+		L 	#_startp;		// Load Start Map to On Map
+		T	#_onmap;		// If ON Map = 0 (Min)
+		JU	RCHK;			// --> ReCheck
+	INI:L	#_onmap;		// Increase ON Map
+		PUSH;
+		RLW	1;				// by 1 Bit on the Left
+		OW;
+		T	#_onmap;
+
+		L 	#_startp;		// Keep Track of Start Driver
+		RLW	1;
+		T 	#_startp;
+		JU	RCHK;			// ReCheck
+	ICM:NOP	0;				// End
+
+	// --- Check Decrease Drivers ---------------
+		L 	#SetP;			// Setpoit
+		L 	#_Val;			// Value
+		<I;					// If Setpoint < Value	
+		AN 	#_Min;			// Min On Value (0)
+		JCN DCM;			// --> End
+		L	#_onmap;
+		PUSH;
+		SLW	1;
+		AW;
+		T	#_onmap;
+		JU	RCHK;			// ReCheck
+	DCM:NOP	0;				// End
+
+
+	NETWORK
+	TITLE = Save Data -------------------------------------------------------------------
+		SET;
+	// --- Save Data to remStat -----------------
+		L	#_onmap;		// Save ON Map
+		L 	16#FFFF;
+		AW;
+		T	#remStat;
+		L 	#_startp;		// Save Start Pointer
+		SLD	16;
+		L	#remStat;
+		OW;
+		T	#remStat;
+		
+		
+END_FUNCTION
+

@@ -1,0 +1,212 @@
+﻿FUNCTION "LoadCon" : Void
+TITLE = Batch I/O Load Control
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// Under Construction!!!
+// Dependencies:
+// bioBitCnt
+// Description:
+// Control multiple motors / valves (Drivers) according to the load requirement
+// |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|
+// |status  |_runmap |_onmap  |_relmap |
+// status.00 = On
+// status.01 = Min
+// status.02 = Max
+// status.03 = 
+// status.04 = 
+// status.05 = 
+// status.06 = 
+// status.07 = 
+ 
+
+	VAR_INPUT 
+		On : Bool;	// Activate Load Control (Reset if FALSE)
+		SetP : Real;	// Setpoint for Number of Running Drivers
+		M1Rel : Bool;	// Release for activation of this Driver
+		M2Rel : Bool;	// Release for activation of this Driver
+		M3Rel : Bool;	// Release for activation of this Driver
+		M4Rel : Bool;	// Release for activation of this Driver
+		M5Rel : Bool;	// Release for activation of this Driver
+		M6Rel : Bool;	// Release for activation of this Driver
+		M7Rel : Bool;	// Release for activation of this Driver
+		M8Rel : Bool;	// Release for activation of this Driver
+	END_VAR
+
+	VAR_OUTPUT 
+		Val : Real;		// Amount of Running Drivers
+		M1On : Bool;	// Activation request for this Driver
+		M2On : Bool;	// Activation request for this Driver
+		M3On : Bool;	// Activation request for this Driver
+		M4On : Bool;	// Activation request for this Driver
+		M5On : Bool;	// Activation request for this Driver
+		M6On : Bool;	// Activation request for this Driver
+		M7On : Bool;	// Activation request for this Driver
+		M8On : Bool;	// Activation request for this Driver
+	END_VAR
+
+	VAR_IN_OUT  
+		remStat : Dint;
+	END_VAR
+
+	VAR_TEMP
+		_onmap : Byte;	// Switched on Range
+		_runmap : Byte;	// Running Drivers
+		_relmap : Byte;	// Released Drivers
+		_crun : Byte;	// Number of Running Drivers
+		_dTmp : Dint;
+		_iTmp : Int;
+		_xTmp : Bool;
+		_on : Bool;
+		_min : Bool;
+		_max : Bool;
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		CLR;
+		= #_min;	
+		= #_max;	
+		A #On;
+		= #_on;
+		JC ON:
+		L 16#00;
+		T #_onmap;
+		T #_relmap;
+		T #_runmap;
+		T #Val
+		JU FIN:		
+ON: 	NOP 0;	
+	// Get Release Map (Released Drivers)
+		L #remStat;
+		L 16#FF;
+		AW;
+		T #_relmap;
+	// Get On Map (Activated Range)
+		L #remStat;
+		SRW 8;
+		L 16#FF;
+		AW;
+		T #_onmap;	
+	// Limit Setpoint
+		L #SetP;	
+		L 0.0;	// Minimum Setpoint
+		<R;
+		JCN SMIN
+		T #SetP;
+SMIN:	TAK;
+		L 8.0;	// Maximum Setpoint
+		>R;
+		JCN SMAX
+		T #SetP;
+SMAX:	NOP 0;
+		
+
+	NETWORK
+	TITLE = Count Running Drivers
+	// Get Run Map (Activated Drivers)
+CHK:	L #_onmap;
+		L #_relmap;
+		AW;
+		T #_runmap;
+	// and count running drivers
+		T #_dTmp;
+		CALL "bioBitCnt"
+		(  	IVal	:= #_dTmp, 
+			OVal	:= #_iTmp
+		);
+		L #_iTmp;
+		T #_crun;
+		ITD;
+		DTR;
+		T #Val;
+
+
+	NETWORK 
+	TITLE = Controller
+		SET;
+	// Compare Setpoint snd Value
+	// If Equal GOTO FIN
+		L #SetP;	
+		L #Val;	
+		==R;
+		JC FIN;
+		<R;
+		JC DEC;	// If SetP smaller then decrease OnMap
+		>R;
+		JC INC;	// If SetP bigger then increase OnMap
+
+	NETWORK
+	TITLE = Increase Range OnMap (start next driver)
+INC:	L 16#FF;
+		L #_onmap;
+		>=I;
+		= #_max;	
+		JC FIN	// Jump to FIN if OnMap is Max	
+		SLW 1;
+		OW;
+		L 16#FF;
+		UW;
+		L #_onmap;
+		TAK;
+		==I;
+		JC INC1;
+		INC 1;
+INC1:	T #_onmap;
+		JU CHK	// Jump back and check again
+
+	NETWORK
+	TITLE = Decrease Range OnMap (stop last driver)
+DEC:	L 16#00;
+		L #_onmap;
+		<=I;
+		= #_min;	
+		JC FIN	// Jump to FIN if OnMap is Min	
+		SLW 1;
+		AW;
+		T #_onmap;
+		JU CHK	// Jump back and check again
+		
+	NETWORK
+	TITLE = Finalise
+FIN:	SET;
+	// Activate Drivers
+		A #_runmap.00;
+		= #M1On;
+		A #_runmap.01;
+		= #M2On;
+		A #_runmap.02;
+		= #M3On;
+		A #_runmap.03;
+		= #M4On;
+		A #_runmap.04;
+		= #M5On;
+		A #_runmap.05;
+		= #M6On;
+		A #_runmap.06;
+		= #M7On;
+		A #_runmap.07;
+		= #M8On;
+		 
+	// Save Data to remStat
+		L #_runmap;
+		SLW 8;
+		L #_onmap;	
+		OW;
+		SLW 8;
+		L #_relmap;
+		OW;
+		T #remStat;
+
+		A #_on;
+		= #remStat.12;
+		A #_min;
+		= #remStat.13;
+		A #_max;
+		= #remStat.14;
+
+
+END_FUNCTION
+

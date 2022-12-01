@@ -1,0 +1,215 @@
+﻿FUNCTION "bioLoadCon" : Void
+TITLE = Batch I/O Load Control
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.1
+// Under Construction!!!
+// Dependencies:
+// bioBitCnt; bioReal2Step; 
+// Description:
+// Control multiple motors / valves (Drivers) according to the load requirement
+// This block activates the drivers in a circular bit sequence to equalise activation 
+// counts and run times. 
+// |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|
+// |          Start P|           _onmap|
+
+	VAR_INPUT 
+		SetP : Real;	// Setpoint for Number of Running Drivers
+		M1Rel : Bool;	// Release Driver 1
+		M2Rel : Bool;	// Release Driver 2
+		M3Rel : Bool;	// Release Driver 3
+		M4Rel : Bool;	// Release Driver 4
+		M5Rel : Bool;	// Release Driver 5
+		M6Rel : Bool;	// Release Driver 6
+		M7Rel : Bool;	// Release Driver 7
+		M8Rel : Bool;	// Release Driver 8
+	END_VAR
+
+	VAR_OUTPUT 
+		Val : Real;		// Amount of Running Drivers
+		M1On : Bool;	// Activate  Driver 1
+		M2On : Bool;	// Activate  Driver 2
+		M3On : Bool;	// Activate  Driver 3
+		M4On : Bool;	// Activate  Driver 4
+		M5On : Bool;	// Activate  Driver 5
+		M6On : Bool;	// Activate  Driver 6
+		M7On : Bool;	// Activate  Driver 7
+		M8On : Bool;	// Activate  Driver 8
+	END_VAR
+
+	VAR_IN_OUT  
+		remStat : Dint;
+	END_VAR
+
+	VAR_TEMP
+		_onmap : Byte;	// Switched on Range
+		_runmap : Byte;	// Running Drivers
+		_relmap : Byte;	// Released Drivers
+		_startmap : Byte;	// Start Pointer
+		_SetP : DInt;	// Setpoint for Number of Running Drivers 
+		_Val : DInt;	// Value for Number of Running Drivers 
+		_Max : Bool;	// Maximum Number of Running Drivers 
+		_Min : Bool;	// Minimum Number of Running Drivers 
+		_dTmp : Dint;
+		_iTmp : Int;
+		_xTmp : Bool;
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Init
+		SET;
+	// Get Release Map
+		A 	#M1Rel;
+		=	#_relmap.%X0;
+		A 	#M2Rel;
+		=	#_relmap.%X1;
+		A 	#M3Rel;
+		=	#_relmap.%X2;
+		A 	#M4Rel;
+		=	#_relmap.%X3;
+		A 	#M5Rel;
+		=	#_relmap.%X4;
+		A 	#M6Rel;
+		=	#_relmap.%X5;
+		A 	#M7Rel;
+		=	#_relmap.%X6;
+		A 	#M8Rel;
+		=	#_relmap.%X7;
+
+	// Get On Map
+		L	#remStat;
+		L	16#FF;
+		AW;
+		T	#_onmap;	
+
+	// Get Start Map
+		L	#remStat;
+		SRD	16;
+		L	16#FF;
+		AW;
+		T	#_startmap;	
+		L 	2#00000000;
+		==I;
+		S	#_startmap.%X0; // Init Start Driver 1 if not defined
+
+
+	NETWORK
+	TITLE = Controller
+		SET;
+	// --- Calculate Number of Required Drivers -
+		CALL "bioReal2Step"
+		(  	InVal	:= #SetP, 
+			OutVal	:= #_SetP
+		);
+
+	// --- Calculate Run Map --------------------
+	RCHK:L	#_onmap;
+		L	#_relmap;
+		AW;
+		T	#_runmap;
+
+	// --- Maximum Map Reached ------------------
+		L	#_onmap;
+		L 	16#FF;
+		>=D;
+		= 	#_Max;
+
+	// --- Minimum Map Reached ------------------
+		L	#_onmap;
+		L 	16#00;
+		<=D;
+		= 	#_Min;
+
+	// --- Count Running Drivers ----------------
+		L 	#_runmap;
+		T 	#_dTmp;
+		CALL "bioBitCnt"
+		(  	InVal	:= #_dTmp, 
+			OutVal	:= #_iTmp
+		);
+		L 	#_iTmp;
+		DTR;
+		T 	#_Val;
+
+	// --- Check Increase Drivers ---------------
+		L 	#_SetP;	// Setpoit
+		L 	#_Val;	// Value
+		>D;			// If Setpoint > Value	
+		AN 	#_Max;	// Max On Value
+		JCN ICM;
+		A 	#_Min;	// No Driver On
+		JCN	INI;
+		L 	#_startmap;	// Load Start Map to On Map
+		T	#_onmap;
+		JU	RCHK;
+	INI:A 	#_onmap.%X7;
+		= 	#_xTmp;		// Save Highest Bit
+		L	#_onmap;
+		PUSH;
+		SLW	1;
+		OW;
+		T	#_onmap;
+		A 	#_xTmp;		// Write Lowest Bit
+		S 	#_onmap.%X0;
+		A 	#_startmap.%X7;	// Start Driver Update (Circulate)
+		S 	#_startmap.%X0;
+		R 	#_startmap.%X7;
+		JC	RCHK;	// Recalculate
+		L 	#_startmap;		// Keep Track of Start Driver
+		SLW	1;
+		T 	#_startmap;
+		JU	RCHK;	// Recalculate
+	ICM:NOP	0;
+
+	// --- Check Decrease Drivers ---------------
+		L 	#_SetP;
+		L 	#_Val;
+		<D;
+		AN 	#_Min;
+		JCN DCM;
+			L	#_onmap;
+			PUSH;
+			SLW	1;
+			AW;
+			T	#_onmap;
+			JU	RCHK;	// Recalculate
+	DCM:NOP	0;
+
+
+	NETWORK
+	TITLE = Write Drivers
+		SET;
+		A 	#_runmap.%X0;
+		= 	#M1On;
+		A 	#_runmap.%X1;
+		= 	#M2On;
+		A 	#_runmap.%X2;
+		= 	#M3On;
+		A 	#_runmap.%X3;
+		= 	#M4On;
+		A 	#_runmap.%X4;
+		= 	#M5On;
+		A 	#_runmap.%X5;
+		= 	#M6On;
+		A 	#_runmap.%X6;
+		= 	#M7On;
+		A 	#_runmap.%X7;
+		= 	#M8On;
+
+	NETWORK
+	TITLE = Save Data
+		SET;
+	// Save Data to remStat
+		L	#_onmap;	
+		T	#remStat;
+		L 	#_startmap;
+		SLD	16;
+		L	#remStat;
+		OW;
+		T	#remStat;
+		
+		
+END_FUNCTION
+

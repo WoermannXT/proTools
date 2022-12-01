@@ -1,0 +1,81 @@
+﻿FUNCTION "bioMap" : Void
+TITLE = Batch I/O Map (Rescale) Value
+{ S7_OptInMized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.2
+// -- Woermann Automation --
+// ToDO: Check Inversed Function
+// Map (Rescale) Value
+// Date: 2020-06-21
+// Description:
+// Caution: If InMin and InMax are Equal, the Result is a Div0!
+// By exchanging OutMin (high value) and OutMax (low value) the Result is Inverted (can be used for a normally open Regulation Valve) 
+// To Map a Standard Analog In- / Output use a Range of 0 - 27648 
+// -- Inputs --
+// InVal: Value to be Mapped / Rescaled
+// InMin: MinInMum Scale InVal (Low Scale of Input Value)
+// InMax: MaxInMum Scale InVal (High Scale of Input Value)
+// OutMin: MinInMum Scale OVal (Low Scale of Output Value)
+// OutMax: MaxInMum Scale OVal (High Scale of Output Value)
+// LInMit: If TRUE then LInMit Output Value (OVal) to its LInMits (OutMin and OutMax), Else OVal is not lInMited
+// -- Outputs --
+// OVal: Mapped (Rescaled) Output Value
+
+	VAR_INPUT 
+		InVal : Real;   // Input Value
+		InMin : Real;   // MinInMum Scale Input Value (Low Scale)
+		InMax : Real;   // MaxInMum Scale Input Value (High Scale)
+		OutMin : Real;   // MinInMum Scale Output Value (Low Scale)
+		OutMax : Real;   // MaxInMum Scale Output Value (High Scale)
+		Constrain : Bool;   // Constrain the Outout Value to its Min / Max Scale
+	END_VAR
+
+	VAR_OUTPUT 
+		OutVal : Real;   // Mapped Output Value
+	END_VAR
+
+	VAR_TEMP 
+		rTmp : Real;
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+
+	NETWORK
+	TITLE = Map
+		L #InVal;
+		L #InMin;
+		-R;
+		T #rTmp;
+
+		L #InMax;
+		L #InMin;
+		-R;
+		L #rTmp;
+		TAK;
+		/R;
+		T #rTmp;
+		L #OutMax;
+		L #OutMin;
+		-R;
+		L #rTmp;
+		*R;
+		L #OutMin;
+		+R;
+	// Constrain Output Value
+		A #Constrain;
+		JCN FIN;
+		L #OutMax;
+		>R;
+		JC FIN;
+		TAK;
+		L #OutMin;
+		<R;
+		JC FIN;
+		TAK;
+	FIN:      T #OutVal;
+
+END_FUNCTION
+

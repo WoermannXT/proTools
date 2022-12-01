@@ -1,0 +1,38 @@
+﻿TYPE "bioAct.DT"
+VERSION : 0.1
+// Batch I/O Actuator Data Type:
+// by Woermann Automation
+	STRUCT
+		OOn : Bool;   // (O) Output On / Open
+		OOff : Bool;   // (O) Output Off / Closed
+		FOn : Bool;   // (I) Feedback On / Open
+		FOff : Bool;   // (I) Feedback Off / Closed
+		ACO : Bool;   // (I) Automatic Control On / Open
+		_ACO : Bool;   // (O) Internal Automatic Control On / Open
+		MCO : Bool;   // (I) Manual Control On / Open
+		Auto : Bool;   // (I) Automatic Mode
+		Rel : Bool;   // (I) Released
+
+		Typ : Byte;   // (I) Type
+
+		OnTSetP { S7_SetPoint := 'True'} : Real;   // (I) On Time Delay Setpoint
+		OnTVal : Real := 0.0;   // (I/O) On Time Delay Value
+		OffTSetP { S7_SetPoint := 'True'} : Real;   // (I) Off Time Delay Setpoint
+		OffTVal : Real := 0.0;   // (I/O) Off Time Delay Value
+		
+		Off :  Bool;   // (O) Off / Closed (dark grey)
+		On :  Bool;   // (O) On / Open (light green)
+		MOff :  Bool;   // (O) Moving to Off / Closing (light grey)
+		MOn :  Bool;   // (O) Moving to On / Opening (dark green)
+
+		Alm :  Bool;   // (O) Alarm
+		AlmS :  Bool;   // (O) Alarm Saved (Not Ackknowledged)
+		EAlm { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Alarm Evaluation
+		AlmTSetP { S7_SetPoint := 'True'} : Real := 10.0;   // (I) Alarm Time Delay Setpoint
+		AlmTVal : Real := 0.0;   // (I/O) Alarm Time Delay
+		Wrn :  Bool;   // (O) Warning
+		EWrn { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Warning Evaluation
+	END_STRUCT;
+
+END_TYPE
+

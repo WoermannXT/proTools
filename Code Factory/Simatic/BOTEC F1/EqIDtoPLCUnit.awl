@@ -1,24 +1,25 @@
 // Woermann Automation 2022
-      
-	  L     #realEqID; 
+// EquipmentID = 1000 * PLCNo + UnitNo
+
+// EqID --> PLCNo and UnitNo
+      L     #realEqID; 
       RND   ; 
-	  T     #EqID; 
+      T     #EqID; 
       L     1000; // Remove Unit Number
       /D   ; 
       T     #PLCNo; // Define PLC Number
-	  L     #EqID; 
+      L     #EqID; 
       L     1000; // Remove PLC Number
       MOD   ; 
       T     #UNo; // Define Unit Number
 
-
+// PLCNo and UnitNo --> EqID
       L     #PLCNo; // PLC Number
       L     1000;
       *D   ; 
       L     #UNo; // Unit Number
-	  T     #EqID; 
+      +D   ; 
+      T     #EqID; 
       DTR   ; 
-	  T     #realEqID; 
- 	  
-
+      T     #realEqID; 
 

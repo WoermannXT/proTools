@@ -1,0 +1,212 @@
+﻿FUNCTION "bioPID" : Void
+TITLE = Batch I/O PID Controller
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.4
+// Batch I/O PID Controller
+// by Woermann Automation
+// Date: 2020-06-20
+// Description:
+// Error = Sp - PVal
+// P-Part = Error * Kp
+// I-Part = Error * Ki + I-Part
+// D-Part = delta Error(PVal) * Kd
+// PID = P-Part + I-Part + D-Part
+// Out = Out + delta PID (Constrain between OutMin and OutMax)
+// To get Inverse PID Logic negate any of the K-Values
+
+	VAR_INPUT 
+	END_VAR
+
+	VAR_OUTPUT 
+	END_VAR
+
+	VAR_IN_OUT 
+		me : "bioPID.DT";
+	END_VAR
+
+	VAR_TEMP 
+		_TBase : Real;	// Time Base (Block Cycle Time in s)
+		_PIDTBase : Real;	// PID Time Base (PID Algo Cycle Time in s)
+		_TOn : Real;	// Timer On Done
+		_DisOut : Real;	// Disturbance Value for Out
+		_E : Real;		// Current Error
+		_p : Real;		// Proportional Part
+		_i : Real;		// Integral Part
+		_d : Real;		// Differential Part
+		_dPV : Real;	// Delta of Process Value
+		_AlmTd : Bool;	// Alarm Timer Done
+		_AlmOnTd : Bool;	// Alarm Evaluation Timer Done
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		SET;
+	// --- Get Time Base in Seconds -------------
+		L	"bioCDT.DB".SysTime.dtS;
+		T	#_TBase;
+
+	// --- Timer Control ------------------------
+		AN	#me.COn;
+		=	#me.Off;
+		JCN	TINI;
+		L	0.0;
+		T	#me.OnTVal;
+		JU	SRT;
+	TINI:	L #_TBase;
+		L	#me.OnTVal;
+		+R;
+		T	#me.OnTVal;
+		L	#me.OnTSetP;
+		>R;
+	// --- Control On Evaluation ----------------
+		JC	INI;
+	SRT:L 	#me.OutIni;
+		T	#me.Out;
+		JU	FIN;
+	INI:	NOP 0;
+
+
+	NETWORK
+	TITLE = PID Algorithm
+		SET;
+		A 	"bioCycTime.DB".Clock.Clk1E1;	// 1 Second Edge
+		JCN	PIDA;
+		// L	1.0;	// 1 Second
+		// T	#_PIDTBase;	// Not Needed if 1 Second
+	// --- Calculate Error Values ---------------
+		L	#me.SetP;
+		L	#me.Val;
+		-R;
+		T	#_E;
+
+		L	#me._Val;
+		L	#me.Val;
+		-R;
+		T	#_dPV;
+	// --- Calculate Disturbance Value ----------
+		L 	#me.DisVal;
+		L 	#me._DisVal;
+		-R;
+		L 	#me.DisGain;
+		*R;		
+		T 	#_DisOut;
+		L 	#me.DisVal;
+		T 	#me._DisVal;
+	// --- Proportional Value -------------------
+		L	#_E;
+		L	#me.E;
+		-R;
+		L	#me.Kp;
+		*R;
+		T	#_p;
+	// --- Integral Value -----------------------
+		L	#_E;
+		// L	#_PIDTBase;	// Not Needed if 1 Second
+		// *R;
+		L	#me.Ki;
+		*R;
+		T	#_i;
+	// --- Differetial Value --------------------
+		L	#_dPV;
+		L	#me._dVal;
+		-R;
+		L	#me.Kd;
+		*R;
+		// L	#_PIDTBase;	// Not Needed if 1 Second
+		// /R;
+		T	#_d;
+	// --- Output Value -------------------------
+		L	#_i;
+		+R;
+		L	#_p;
+		+R;
+		L 	#_DisOut;
+		+R;
+		L	#me.Out;
+		+R;
+	// --- Check Limits -------------------------
+		L	#me.OutMax;
+		>R;
+		JC	LIM;
+		TAK;
+		L	#me.OutMin;
+		<R;
+		JC	LIM;
+		TAK;
+		T	#me.Out;
+		JU	FIN;
+	LIM:	T #me.Out;
+	// --- Save Values --------------------------
+		L	#_E;
+		T	#me.E;
+		L	#_dPV;
+		T	#me._dVal;
+		L	#me.Val;
+		T	#me._Val;
+	PIDA:NOP 0;
+
+
+	NETWORK
+	TITLE = Alarm Evaluation
+		SET;
+	// --- Alarm Evaluation ---------------------
+	// Delay Alarm Evaluation
+		A	#me.COn;
+		JCN	TEAC;
+		L	#_TBase;
+		L	#me.AlmOnTVal;
+		+R;
+		T	#me.AlmOnTVal;
+		JU	TEAR;
+	TEAC: NOP 0;
+		=	#me.Wrn;
+		L 	0.0;
+		T	#me.AlmOnTVal;
+	TEAR: NOP 0;
+		L	#me.AlmOnTSetP;
+		L	#me.AlmOnTVal;
+		<=R;
+		=	#_AlmOnTd;
+
+	// Delay Alarm
+		L	#_E;
+		ABS;
+		L	#me.AlmHyst;
+		>R;
+		A	#_AlmOnTd;
+		JCN	TALC;
+		A	#me.EWrn;
+		=	#me.Wrn;
+
+		L	#_TBase;
+		L	#me.AlmTVal;
+		+R;
+		T	#me.AlmTVal;
+		JU	TALR;
+	TALC:NOP 0;
+		=	#me.Wrn;
+		L 	0.0;
+		T	#me.AlmTVal;
+	TALR: NOP 0;
+		L	#me.AlmTSetP;
+		L	#me.AlmTVal;
+		<=R;
+		=	#_AlmTd;
+
+		A	#_AlmTd;
+		A	#me.EAlm;
+		= 	#me.Alm;
+
+		A 	#me.Alm;
+		S 	#me.AlmS;
+
+		
+	NETWORK
+	TITLE = Finalise
+	FIN:NOP	0;
+		
+END_FUNCTION
+

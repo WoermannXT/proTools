@@ -1,0 +1,39 @@
+FUNCTION "bioPOW" : Void
+TITLE = Calculate Val to the power of Pow
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.3
+// -- Woermann Automation --
+// Date: 2020-06-26
+// Description:
+// Calculate Val to the power of Pow (X^Y) and Return to Res
+// Res = EXP(LN(Val) * P0w)
+
+	VAR_INPUT 
+		Val : Real; // Value
+		Pow : Real; // Power
+	END_VAR
+
+	VAR_OUTPUT 
+		Res : Real; // Result
+	END_VAR
+
+	VAR_IN_OUT  
+	END_VAR
+
+	VAR_TEMP 
+	END_VAR
+
+BEGIN
+
+	NETWORK
+	TITLE = Calculation
+		L #Val;
+		LN;
+		L #Pow;
+		*R;
+		EXP;
+		T #Res;
+
+END_FUNCTION
+

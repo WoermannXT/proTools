@@ -1,0 +1,82 @@
+FUNCTION "bioPWM" : Void
+TITLE = Batch I/O Pulse Width Modulator
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.2
+// -- Woermann Automation --
+// Date: 2020-06-26
+// Description:
+// A Pulse Width Modulated Controler generates a Pulse Width (Duty Cycle) according to a Setpoint. The Output is activated during the Duty Cycle. Used for ON / OFF Control, 
+// A Setpoint (SetP) of 25(%) and a Control Cycle Period (CPeriod) of 10 seconds results in a Duty Cycle (Out) of 2.5 seconds.
+// The Update Speed is defined by the Time Base (TBase), the smaller it is the more accuracy you get. Typically you would call this block every PLC cycle and supply the PLC Cycle Time as TBase
+// -- Inputs --	
+// On: If TRUE the Out is activated for the Time of calculated Pulse Width, Else the Out and Time Counter is reset to 0 
+// SetP: Setpoint for the Pulse Control in the range of 0 (OFF) to 100 (ON); Duty Cycle 0-100%
+// Period: Period or Control Cycle Time, the Setting depends on the power of the Controller (the more the value reacts to a Signal, the shorter this time should be, eg. Fermenter Temperature 1000.0)
+// TBase: Define at what Time Interval the Controller is run (1 / how often is this block called per second). If you call this Block continiously, insert the Cycle Time of the PLC / Block
+// -- Outputs --
+// Out: Control Output Bit (Duty Cycle = TRUE)
+// -- In-/Outputs --
+// remTic: Memory for Period Timer
+
+	VAR_INPUT 
+		On : Bool; 	// Activate Pulse Control
+		SetP : Real; // Setpoint (0-100; Duty Cycle %)
+		Period : Real; // Control Period in seconds (eg. 10.0)
+		TBase : Real; // Cycle Time of Block Call in seconds (PLC Cycle Time)
+	END_VAR
+
+	VAR_OUTPUT 
+		Out : Bool; // Control Output Bit (Duty Cycle = TRUE)
+	END_VAR
+
+	VAR_IN_OUT  
+		remTic : DInt; // Memory for Period Timer
+	END_VAR
+
+	VAR_TEMP 
+		_TicSetP : Word;
+		_TicVal : Word;
+	END_VAR
+
+BEGIN
+
+	NETWORK
+	TITLE = Initialise
+		A	#On;
+		JC	CALC;
+		CLR;
+		=	#Out;
+		L	0;
+		T	#remTic;
+		BEU;
+
+	NETWORK
+	TITLE = Calculation
+	CALC:L	#TBase;
+		L	#Period;
+		/R;
+		l	65535.0;	// 2^16 - 1
+		*R;
+		RND;
+		L	#remTic;
+		+I;
+		T	#_TicVal;
+
+		L	#SetP;
+		l	655.36;	// 2^16 / 100
+		*R;
+		RND;
+		T	#_TicSetP;
+
+		L	#_TicVal;
+		>=D;
+		=	#Out;
+
+	NETWORK
+	TITLE = Finalise
+		L	#_TicVal;
+		T	#remTic;
+
+END_FUNCTION
+

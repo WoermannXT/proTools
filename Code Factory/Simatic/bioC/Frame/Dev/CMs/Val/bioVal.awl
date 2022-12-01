@@ -1,0 +1,140 @@
+﻿FUNCTION "bioVal" : Void
+TITLE = Batch I/O Value Processing
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.4
+// Batch I/O Value Processing
+// by Woermann Automation
+// Date: 2020-07-15
+// Description:
+// Dependencies:
+// bioPoT (Batch I/O Polygon Processing)
+// bioMap (Batch I/O Map (Rescale) Value)
+
+
+	VAR_INPUT 
+	END_VAR
+
+	VAR_OUTPUT 
+	END_VAR
+
+	VAR_IN_OUT 
+		me : "bioVal.DT";
+	END_VAR
+
+	VAR_TEMP 
+		_TBase : Real;	// Time Base (Block Cycle Time in s)
+		_Val : Real;	// Internal Raw Value
+		_rTmp : Real;	// Temporary Real Variable
+		_AlmTd : Bool;	// Alarm Timer Done
+	END_VAR
+
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		SET;
+	// -- Get Time Base in Seconds
+		L	"bioCDT.DB".SysTime.dtS;
+		T	#_TBase;
+
+
+	NETWORK
+	TITLE = Type Definition
+		SET;
+	// --- Read Value ---------------------------
+		L	#me.Typ;
+		JL    NDEF;
+		JU    Typ0;	// No Rescaling (Internal Val = Raw)
+		JU    Typ1;	// Analog Input
+		JU    Typ2;	// PT100
+		JU    Typ3;	// PT1000
+		JU    NDEF;	// PWM ???
+		JU    NDEF;	// Manual Input Value ???
+	NDEF: BEU;
+	Typ0:L	#me.Raw;
+		T	#_Val;
+		JU	TEND;
+	Typ1:NOP 0;
+		CALL "bioMap"
+		(	InVal	:= #me.Raw , 
+			InMin	:= 0.0 , 
+			InMax	:= 27648.0 , 
+			OutMin	:= #me.LScal , 
+			OutMax	:= #me.HScal , 
+			Limit	:= FALSE , 
+			OutVal	:= #_Val
+		);
+		JU	TEND;
+	Typ2:L	#me.Raw;
+		T	#_Val;
+		JU	TEND;
+	Typ3:L	#me.Raw;
+		T	#_Val;
+		JU	TEND;
+	TEND: NOP 0;
+
+
+	NETWORK
+	TITLE = Procesing
+		SET;
+	// --- Callibration (Raw Value) -------------
+		L	#_Val;
+		L	#me.OffS;
+		+R;
+		L	#me.Gain;
+		*R;
+		T	#_Val;
+	// --- Polygon Table ------------------------
+		L	#me.PoT;
+		L 0;
+		==I;
+		JC NPOT;
+		CALL "bioPoT"
+		(	me	:= "bioPoT.DB".PoT[#me.PoT], 	
+			Raw	:= #_Val, 
+			Val	:= #_Val 
+		);
+	NPOT:NOP 0;
+	// --- Filter -------------------------------
+		A	#me.EFlt;
+		JCN	NFLT;
+		CALL "bioFilter"
+		(	On    :=True,
+			Raw   :=#_Val,
+			dMin  :=#me.FltMin,
+			dMax  :=#me.FltMax,
+			Alpha :=#me.FltAlpha,
+			Val   :=#me.Val
+		);
+		JU	FLT
+	NFLT: NOP 0;
+		L 	#_Val;
+		T 	#me.Val;
+	FLT:NOP 0
+	// --- Limit Evaluation ---------------------
+		L 	#me.Val;
+		L 	#me.HHVal;
+		>=R;
+		=	#me.HHS;
+		L 	#me.Val;
+		L 	#me.HVal;
+		>=R;
+		=	#me.HS;
+		L 	#me.Val;
+		L 	#me.LVal;
+		<=R;
+		=	#me.LS;
+		L 	#me.Val;
+		L 	#me.LLVal;
+		<=R;
+		=	#me.LLS;
+	// --- Statistics ---------------------------
+
+
+	NETWORK
+	TITLE = Finalise
+	FIN:	NOP 0;
+		
+END_FUNCTION
+

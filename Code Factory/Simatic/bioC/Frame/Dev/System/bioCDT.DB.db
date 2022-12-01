@@ -1,0 +1,84 @@
+﻿DATA_BLOCK "bioCDT.DB"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 1.0
+// Batch I/O Cycle, Clock, Date and Time Control Data Block:
+// by Woermann Automation
+NON_RETAIN
+   VAR RETAIN
+		DateTime : STRUCT;		// Date Time Data
+			Val {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;		// (O) Date Time Value
+			SetP {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;		// (I/O) Date Time Setpoint
+			Old {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;		// (O) Date Time Previous Cylce
+			Set : Bool;			// (I) Set Date Time Value (from SetP)
+			Get : Bool;			// (I) Set Date Time SetP (from Val)
+			DT1SE : Bool;		// (O) Date Time Every Second Edge
+			DT1mE : Bool;		// (O) Date Time Every Minute Edge
+			DT1hE : Bool;		// (O) Date Time Every Hour Edge
+			DT1dE : Bool;		// (O) Date Time Every Day Edge
+			DT1WE : Bool;		// (O) Date Time Every Week Edge
+			DT1MoE : Bool;		// (O) Date Time Every Month Edge
+			DT1YE : Bool;		// (O) Date Time Every Year Edge
+		END_STRUCT;
+		SysTime : STRUCT;		// Time Data
+			Sys : STRUCT;		// System Time in ms (max 2147483647)
+				Act : Time;		// (O) Actual
+				Old : Time;		// (I/O) Previous Cycle
+				Delta : Time;   // (O) Delta
+			END_STRUCT;
+			dtMS : Real;		// (O) Base for Milli Second Timer
+			dtS : Real;			// (O) Base for Second Timer
+			dtM : Real;			// (O) Base For Minute Timer
+			dtH : Real;			// (O) Base For Hour Timer
+			dtD : Real;			// (O) Base For Day Timer
+			_dtSMem : Time;		// (I/O) Second Timer Base Memory
+			_dtMMem : Time;		// (I/O) Minute Timer Base Memory
+			_dtHMem : Time;		// (I/O) Hour Timer Base Memory
+			_dtDMem : Time;		// (I/O) Day Timer Base Memory
+		END_STRUCT;
+		Cycle : STRUCT;			// Cycle Data
+			iCnt : Byte;		// (I/O) Cycle Counter
+			iCycTm : Int;		// (O) Cycle Time in Millis
+			Init : Bool;		// (I) First Cycle after PLC Start (OB100)
+			C2 : Bool;			// (O) 2. Cycle Bit
+			C4 : Bool;			// (O) 4. Cycle Bit
+			C8 : Bool;			// (O) 8. Cycle Bit
+			C16 : Bool;			// (O) 16. Cycle Bit
+			C32 : Bool;			// (O) 32. Cycle Bit
+			C64 : Bool;			// (O) 64. Cycle Bit
+			C128 : Bool;		// (O) 128. Cycle Bit
+			C256 : Bool;		// (O) 256. Cycle Bit
+		END_STRUCT;
+		Clock : STRUCT;			// Clock Data
+			ClkCPU : Byte;		// (O) CPU Clock
+			ClkCPUE : Byte;		// (O) CPU Clock Edge
+			Clk01 : Bool;		// (O) 0.1 Seconds (10 Hz)
+			Clk02 : Bool;		// (O) 0.2 Seconds (5 Hz)
+			Clk04 : Bool;		// (O) 0.4 Seconds (2.5 Hz)
+			Clk05 : Bool;		// (O) 0.5 Seconds (2 Hz)
+			Clk08 : Bool;		// (O) 0.8 Seconds (1.25 Hz)
+			Clk10 : Bool;		// (O) 1.0 Seconds (1 Hz)
+			Clk16 : Bool;		// (O) 1.6 Seconds (0.625 Hz)
+			Clk20 : Bool;		// (O) 2.0 Seconds (0.5 Hz)
+			Clk05E : Bool;		// (O) 1/2 Sec Edge
+			Clk1E : Bool;		// (O) 1 Sec Edge
+			Clk1E1 : Bool;		// (O) 1 Sec Edge + 1 Cycle
+			Clk1E2 : Bool;		// (O) 1 Sec Edge + 2 Cycles
+			Clk1E3 : Bool;		// (O) 1 Sec Edge + 3 Cycles
+			Clk2E : Bool;		// (O) 2 Sec Edge
+			Clk6E : Bool;		// (O) 6 Sec Edge (0.1 Minute)
+			Clk10E : Bool;		// (O) 10 Sec Edge
+			Clk60E : Bool;		// (O) 60 Sec Edge
+			Clk360E : Bool;		// (O) 360 Sec Edge (0.1 Hour)
+			_Clk1Mem : Bool;	// (O) 1 Sec Memory Bit
+			_Clk2Mem : Bool;	// (O) 2 Sec Memory Bit
+			_Clk6Mem : Byte;	// (O) 6 Sec Memory
+			_Clk10Mem : Byte;	// (O) 10 Sec Memory
+			_Clk60Mem : Byte;	// (O) 60 Sec Memory
+			_Clk360Mem : Int;	// (O) 360 Sec Memory
+		END_STRUCT;
+   END_VAR
+
+BEGIN
+
+END_DATA_BLOCK
+

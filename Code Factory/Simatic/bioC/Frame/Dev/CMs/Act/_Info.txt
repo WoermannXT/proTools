@@ -1,0 +1,17 @@
+Actuator Control Module
+ToDo:
+
+
+
+
+Types:
+0	Output On
+1	Output On; Feedback Off
+2	Output On; Feedback Off (checked only when Output Off; Regulation Valve)
+3	Output On; Feedback On 
+5	Output On; Feedback On + Off
+6	Output On + Off; Feedback On + Off | Output 1 + 2; Feedback 1 + 2
+
+	
+Inverse Logic (Normally Open Valves)
+ 

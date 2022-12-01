@@ -1,0 +1,108 @@
+FUNCTION "bioFilter" : Void
+TITLE = Simple Noise Filter
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Woermann
+VERSION : 0.2
+// -- Woermann Automation --
+// Real Value Noise Filter
+// Date: 2020-06-21
+// Description:
+// Val = Raw * Alpha + (Val * (1.0 - Alpha))
+// -- Inputs --
+// On: If TRUE the Filter is Active; Else the Filtered Value = Raw Value
+// Raw: Input of the Raw Value
+// dMin: The defference between Raw Value and Filtered Value has to be bigger than this to be validated; 0 Turns this Function OFF
+// dMax: The defference between Raw Value and Filtered Value has to be smaller than this to be validated; 0 Turns this Function OFF
+// Alpha: Defines the Power of the Raw Value in %; 0.0 (0%) no Change of Filtered Value; 1.0 (100%) is the Filtered Value = Raw Value. So the smaller the Alpha Value is, the more smoothing you get
+// -- In-/Outputs --
+// Val: Filtered Value to be Adjusted by this Function
+
+	VAR_INPUT 
+		On : Bool; 		// Activate Filter Function
+		Raw : Real;	// Raw Value To Be Filtered
+		dMin : Real;	// Delta Minimum (Too Small Change, No Update of Val, If 0 then Disabled)
+		dMax : Real;	// Delta Maximum (Too Big Change, Update Val with dMax, If 0 then Disabled)
+		Alpha : Real;	// Factor for Filter between 0 (0% no Update) and 1 (100% no Damping, Val = Raw)
+	END_VAR
+
+	VAR_OUTPUT 
+	END_VAR
+
+	VAR_IN_OUT  
+		Val : Real; 	// Filtered Value
+	END_VAR
+
+	VAR_TEMP 
+		_rTmp : Real;
+		_dVal : Real;
+	END_VAR
+
+BEGIN
+	NETWORK
+	TITLE = Initialise
+		SET;
+	// Acitve Evaluation
+		A #On;
+		JC INIT;
+		L #Raw;
+		T #Val;
+		BEU;
+	INIT: NOP 0;
+
+		L #Raw;
+		L #Val;
+		-R;
+		T #_dVal;
+
+	NETWORK
+	TITLE = Filter Algorithm
+		SET;
+	// Check Minimum Delta
+		L #_dVal;
+		ABS;
+		L #dMin;
+		<R;
+		JC FIN;
+	// Check Maximum Delta (Positive)
+		L #dMax;
+		L 0.0;
+		>R;
+		JCN CALC;
+		L #_dVal;
+		L #dMax;
+		>R;
+		JCN CALC;
+		L #Val;
+		+R;
+		T #Raw;
+		JU CALC;
+	// Check Maximum Delta (Negative)
+		L #_dVal;
+		L #dMax;
+		<R;
+		JCN CALC;
+		L #Val;
+		L #dMax;
+		-R;
+		T #Raw;
+	// Calculate Filtered Value
+	CALC:L #Alpha;
+		L #Raw;
+		*R;
+		T #_rTmp;
+		L 1.0;
+		L #Alpha;
+		-R;
+		L #Val;
+		*R;
+		L #_rTmp;
+		+R;
+		T #Val;
+
+	NETWORK
+	TITLE = Finalise
+	FIN:CLR;
+	// Save Values
+
+END_FUNCTION
+

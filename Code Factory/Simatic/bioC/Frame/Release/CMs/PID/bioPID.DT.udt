@@ -1,0 +1,52 @@
+﻿TYPE "bioPID.DT"
+VERSION : 0.1
+// Batch I/O PID Data Type:
+// by Woermann Automation
+	STRUCT
+		COn : Bool;   // (I) Activate PID (PID Algorithm run request)
+		SetP { S7_SetPoint := 'True'} : Real;   // (I) Setpoint to be reached
+		Val : Real;   // (I) Value (Actual Measured Process Value)
+		_Val { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (I/O) Value Memory
+		_dVal { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (I/O) Delta Value Memory
+		Out : Real;   // (I/O) PID Output
+		OutMin { S7_SetPoint := 'True'} : Real;   // (I) Minimum Output Value (Off Output Value)
+		OutMax { S7_SetPoint := 'True'} : Real;   // (I) Maximum Output Value
+		OutIni { S7_SetPoint := 'True'} : Real;   // (I) Initial Output Value (Start Output Value)
+		EHyst { S7_SetPoint := 'True'} : Real;   // (I) Error Hysteresis for Alarm Evaluation
+		Kp { S7_SetPoint := 'True'} : Real := 1.0;   // (I) Proportional Gain Factor
+		Ki { S7_SetPoint := 'True'} : Real := 0.5;   // (I) Integral Gain Factor
+		Kd { S7_SetPoint := 'True'} : Real;   // (I) Differential Gain Factor
+		p { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (O) Proportional Part
+		i { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (O) Integral Part
+		d { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (O) Differential Part
+		E { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;   // (O) Error of Controller
+		DisVal : Real;   // (I) Distrubance Value for Out Correction
+		_DisVal : Real;   // (I/O) Internal Distrubance Value for Out Correction
+		DisGain { S7_SetPoint := 'True'} : Real;   // (I) Disturbance Gain for Out Correction
+
+		Off :  Bool;   // (O) Off / Closed (dark grey)
+		On :  Bool;   // (O) On / Open (light green)
+		MOff :  Bool;   // (O) Moving to Off / Closing (light grey)
+		MOn :  Bool;   // (O) Moving to On / Opening (dark green)
+
+		OnTSetP { S7_SetPoint := 'True'} : Real := 10.0;   // (I) On Time Delay Setpoint
+		OnTVal : Real := 0.0;   // (I/O) On Time Delay Value
+		// OffTSetP { S7_SetPoint := 'True'} : Real;   // (I) Off Time Delay Setpoint
+		// OffTVal : Real := 0.0;   // (I/O) Off Time Delay Value
+
+		AlmHyst { S7_SetPoint := 'True'} : Real;   // (I) Hysteresis for Alarm (ABS(SetP-Val))
+
+		AlmOnTVal : Real;   // (I/O) Alarm Initialisation Timer Value
+		AlmOnTSetP { S7_SetPoint := 'True'} : Real := 10.0;   // (I) Alarm Initialisation Timer Setpoint
+	
+		Alm :  Bool;   // (O) Alarm
+		AlmS :  Bool;   // (O) Alarm Saved (Not Ackknowledged)
+		EAlm { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Alarm Evaluation
+		AlmTSetP { S7_SetPoint := 'True'} : Real := 10.0;   // (I) Alarm Time Delay Setpoint
+		AlmTVal : Real := 0.0;   // (I/O) Alarm Time Delay
+		Wrn :  Bool;   // (O) Warning
+		EWrn { S7_SetPoint := 'True'} :  Bool;   // (I) Enable Warning Evaluation
+	END_STRUCT;
+
+END_TYPE
+
