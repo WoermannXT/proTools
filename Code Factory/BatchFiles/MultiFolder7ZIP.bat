@@ -1,0 +1,1 @@
+for /d %%X in (*) do "L:\7-Zip 22.00\7za.exe" a "z:\tmp\_Index\%%X.7z" "%%X\"
