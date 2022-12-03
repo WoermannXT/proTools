@@ -1,0 +1,20 @@
+ <!DOCTYPE awl>
+<awl>
+<header>
+</header>
+<body>
+
+
+<act>
+For each actuator this is done
+
+</act>
+
+<n>Network name
+
+
+
+</n>
+
+</body>
+</awl> 
