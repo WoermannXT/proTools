@@ -22,8 +22,8 @@ VERSION : 0.1
 		
 		Off :  Bool;   // (O) Off / Closed (dark grey)
 		On :  Bool;   // (O) On / Open (light green)
-		MOff :  Bool;   // (O) Moving to Off / Closing (light grey)
-		MOn :  Bool;   // (O) Moving to On / Opening (dark green)
+		MOvff :  Bool;   // (O) Moving to Off / Closing (light grey)
+		MOvn :  Bool;   // (O) Moving to On / Opening (dark green)
 
 		Alm :  Bool;   // (O) Alarm
 		AlmS :  Bool;   // (O) Alarm Saved (Not Ackknowledged)
@@ -35,4 +35,3 @@ VERSION : 0.1
 	END_STRUCT;
 
 END_TYPE
-
