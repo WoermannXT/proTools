@@ -12,10 +12,10 @@ EWrn	x		x		x			x
 Sim		x		x		x			x		
 Ign		x		x		x			x		
 											
-Off		x		x		x		LLS	x		
-On		x		x		x		HHS	x		
-MOff	x		x		x		LS	x		
-MOn		x		x		x		HS	x		
+Off		x		x		x		LLS	x		x?
+On		x		x		x		HHS	x		x?
+MOvff	x		x		x?		LS	x		x?
+MOvn	x		x		x?		HS	x		x?
 Rel		x				x					
 Auto	x				x					
 
