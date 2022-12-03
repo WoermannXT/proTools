@@ -13,7 +13,6 @@ VERSION : 0.2
 // On: If TRUE the Out is activated for the Time of calculated Pulse Width, Else the Out and Time Counter is reset to 0 
 // SetP: Setpoint for the Pulse Control in the range of 0 (OFF) to 100 (ON); Duty Cycle 0-100%
 // Period: Period or Control Cycle Time, the Setting depends on the power of the Controller (the more the value reacts to a Signal, the shorter this time should be, eg. Fermenter Temperature 1000.0)
-// TBase: Define at what Time Interval the Controller is run (1 / how often is this block called per second). If you call this Block continiously, insert the Cycle Time of the PLC / Block
 // -- Outputs --
 // Out: Control Output Bit (Duty Cycle = TRUE)
 // -- In-/Outputs --
@@ -23,7 +22,6 @@ VERSION : 0.2
 		On : Bool; 	// Activate Pulse Control
 		SetP : Real; // Setpoint (0-100; Duty Cycle %)
 		Period : Real; // Control Period in seconds (eg. 10.0)
-		TBase : Real; // Cycle Time of Block Call in seconds (PLC Cycle Time)
 	END_VAR
 
 	VAR_OUTPUT 
@@ -35,6 +33,7 @@ VERSION : 0.2
 	END_VAR
 
 	VAR_TEMP 
+		_TBase : Real; // Cycle Time of Block Call in seconds (PLC Cycle Time) !!!TBD
 		_TicSetP : Word;
 		_TicVal : Word;
 	END_VAR
@@ -53,7 +52,7 @@ BEGIN
 
 	NETWORK
 	TITLE = Calculation
-	CALC:L	#TBase;
+	CALC:L	#_TBase;
 		L	#Period;
 		/R;
 		l	65535.0;	// 2^16 - 1
