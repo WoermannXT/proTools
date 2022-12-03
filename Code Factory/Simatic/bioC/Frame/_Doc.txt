@@ -4,28 +4,30 @@ System:
 CDT		Cycle, Clock, Date and Time Function
 Prt		Protocol Function ???
 
-
-
 Control Modules;
 Act		Actuator
 Sig		Signal (Digital); SpI
 -AnI	Analog Input > Value
--AnO		Analog Output ???
+-AnO	Analog Output ???
 Val		Value Processing
 Set		Setpoint Processing
 PID		PID Controller
 VLT		VLT
--Swi		> Signal
+-Swi	> Signal
 
-Event Management:
-DTP		Date Time Planer
+Activity Management:
+DTS		Date Time Scheduler
 EVA		Event Activity Manager		
 
-Batch Management:
+Sequence Management:
 Seq		Sequencer
 Par		Parameter Manager
 Rec		Recipe Manager
 ...
+
+Batch Management:
+Prt		Batch Data Protocol
+Trf		Transfer Manager
 
 Functions:
 Map		Value Remapping (Rescaling)
@@ -45,30 +47,34 @@ S	Set | Start
 R	Reset | Stop
 P	Pause | Halt
 
-
-
 V	Val		Value
 Sp			Setpoint
 S	Sig		Signal
 
+On
+Off
+
 // Alarms are Logged and Visible on Screen
-Al		Alarm
-EAl		Enable Alarm
-GAl		General Alarm
-GAlS	General Alarm Saved
-GAlTOnSP
-GAlTOnV
+Alm		Alarm
+EAlm	Enable Alarm Evaluation
+AlmS	Alarm Saved
+AlmTOnSP	Alarm Time Delay Setpoint
+AlmTOnV		Alarm Time Delay Value
+
 // Warnings are Visible on Screen
 Wrn		Warning
-// Information is Visible in dedicated space
+WrnTOnSP	Warning Time Delay Setpoint
+WrnTOnV		Warning Time Delay Value
+
+// Information is Visible in dedicated spaces
 Inf		Information
 
 
-WDT		Watch Dog Timer
+WDT		Watch Dog Timer?
 
 T 	Tim		Time(r)
 TOn		Time On
-TOff	Time Off
+TOff		Time Off
 
 TOnSp
 TOnV
@@ -81,19 +87,21 @@ L	Low
 LL	Low Low 
 MIN Minimum
 
-MAXV
+MAXV	Maximum Value
 HHV	High High Value
+HSc	High Scale
 HV	High Value
 LV	Low Value 
+LSc	Low Scale
 LLV	Low Low Value
-MINV
+MINV	Minimum Value
 
-MAXS
+MAXS	Maximum Signal
 HHS	High High Signal
 HS	High Signal
 LS	Low Signal 
 LLS	Low Low Signal
-MINS
+MINS	Minimum Signal
 
 // Statistics
 Stat
@@ -101,7 +109,8 @@ Stat
 Avg		Average
 Cnt		Counter
 Sum		Sum
+Med		Median
 
-AvgCnt
-AvgSum
+AvgCnt	Average Counter
+AvgSum	Avrage Sum
 
