@@ -9,15 +9,15 @@ VERSION : 0.2
 // Description:
 // Count the number of TRUE Bits in a given Integer Number (DInt)
 // Using Brian Kernighan's C algorithm (v &= v - 1), only going through as many iterations as there are bits Set
-// 3 times faster than Siemens Standard Function BITSUM
+// up to 3 times faster than Siemens Standard Function BITSUM
 
 
 	VAR_INPUT 
-		InVal : DInt;   // Input Value DInt with Bits to be counted
+		InVal : DInt;   // Input Value with Bits to be counted
 	END_VAR
 
 	VAR_OUTPUT 
-		OutVal : Int;   // Output Value Int (Counted Bits Result)
+		OutVal : Int;   // Output Value (Counted Bits Result)
 	END_VAR
 
 	VAR_IN_OUT  
