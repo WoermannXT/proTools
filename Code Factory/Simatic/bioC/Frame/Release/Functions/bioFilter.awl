@@ -13,16 +13,16 @@ VERSION : 0.2
 // Raw: Input of the Raw Value
 // dMin: The defference between Raw Value and Filtered Value has to be bigger than this to be validated; 0 Turns this Function OFF
 // dMax: The defference between Raw Value and Filtered Value has to be smaller than this to be validated; 0 Turns this Function OFF
-// Alpha: Defines the Power of the Raw Value in %; 0.0 (0%) no Change of Filtered Value; 1.0 (100%) is the Filtered Value = Raw Value. So the smaller the Alpha Value is, the more smoothing you get
+// Alpha: Defines the Power of the Raw Value in %; 0.0 (0%) no Change of Filtered Value; 1.0 (100%) is the Filtered Value = Raw Value. So the smaller Alpha is, the more smoothing you get
 // -- In-/Outputs --
 // Val: Filtered Value to be Adjusted by this Function
 
 	VAR_INPUT 
 		On : Bool; 		// Activate Filter Function
 		Raw : Real;	// Raw Value To Be Filtered
-		dMin : Real;	// Delta Minimum (Too Small Change, No Update of Val, If 0 then Disabled)
-		dMax : Real;	// Delta Maximum (Too Big Change, Update Val with dMax, If 0 then Disabled)
-		Alpha : Real;	// Factor for Filter between 0 (0% no Update) and 1 (100% no Damping, Val = Raw)
+		dMin : Real;	// ABS Delta Minimum (Too Small Change, No Update of Val, If 0 then Disabled)
+		dMax : Real;	// ABS Delta Maximum (Too Big Change, Update Val with dMax, If 0 then Disabled)
+		Alpha : Real;	// Factor for Filter between 0 (0% no Update of Val) and 1 (100% no Damping, Val = Raw)
 	END_VAR
 
 	VAR_OUTPUT 
@@ -35,6 +35,7 @@ VERSION : 0.2
 	VAR_TEMP 
 		_rTmp : Real;
 		_dVal : Real;
+		_ABSdVal : Real;
 	END_VAR
 
 BEGIN
@@ -47,40 +48,40 @@ BEGIN
 		L #Raw;
 		T #Val;
 		BEU;
-	INIT: NOP 0;
-
-		L #Raw;
+	INIT: L #Raw;
 		L #Val;
 		-R;
 		T #_dVal;
+		ABS;
+		T #_ABSdVal;
 
 	NETWORK
 	TITLE = Filter Algorithm
 		SET;
 	// Check Minimum Delta
-		L #_dVal;
-		ABS;
+		L #_ABSdVal;
 		L #dMin;
 		<R;
 		JC FIN;
-	// Check Maximum Delta (Positive)
+	// Check Maximum Delta
+		L 0.0;
 		L #dMax;
+		>=R;
+		JC CALC;
+		L #_ABSdVal;
+		<R;
+		JC CALC;
+	// Maximum Delta (Positive)
+		L #_dVal;
 		L 0.0;
 		>R;
 		JCN CALC;
-		L #_dVal;
-		L #dMax;
-		>R;
-		JCN CALC;
 		L #Val;
+		L #dMax;
 		+R;
 		T #Raw;
 		JU CALC;
-	// Check Maximum Delta (Negative)
-		L #_dVal;
-		L #dMax;
-		<R;
-		JCN CALC;
+	// Maximum Delta (Negative)
 		L #Val;
 		L #dMax;
 		-R;
