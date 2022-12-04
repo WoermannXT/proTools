@@ -1,20 +1,25 @@
- <!DOCTYPE awl>
+Variables:
+$sym    // Symbol
+$des    // Description
+$num    // Contol Module Number
+$Typ    // Control Module Type
+$plc    // PLC Number
+$Uno    // Unit Numbet
+
+
+<!DOCTYPE awl>
 <awl>
 <header>
 </header>
 <body>
 
 
-<act>
-For each actuator this is done
+  <act>
+    For each actuator do this
+    <nw>Network Name
 
-</act>
-
-<n>Network name
-
-
-
-</n>
+    </nw>
+  </act>
 
 </body>
 </awl> 
