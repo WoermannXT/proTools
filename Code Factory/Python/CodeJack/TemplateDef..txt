@@ -3,11 +3,16 @@ $blk    // Block
 $sym    // Symbol
 $des    // Description
 $num    // Contol Module Number
-$typ    // Control Module Type
+$typ    // Contol Module Type
 $plc    // PLC Number
 $Uno    // Unit Numbet
+$tag    // Module Tag
+$atr    // Module Attribute
+
 
 $num{format}
+$tag.column
+$atr.column
 
 Tags:
 <head>
@@ -29,7 +34,7 @@ Tags:
 <!-- Comments, not interpreted -->
 
 Examples:
-<act num=1-6>
+<act num=[1-6]>
   <network>Act$num{000} $sym $des</network>
     A    $blk.$sym.RelExt;
     =    $blk.$sym.Rel;
@@ -45,9 +50,8 @@ Document Template:
 
   <act>
     For each actuator do this
-    <network>Title
-
-    </network>
+    <network>Act$num{000} $sym $des</network>
+    // 
   </act>
 
 </body>
