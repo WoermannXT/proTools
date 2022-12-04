@@ -6,11 +6,28 @@ $Typ    // Control Module Type
 $plc    // PLC Number
 $Uno    // Unit Numbet
 
+Tags:
+<head>
+<body>
+<network>
+<unit>
+<seq>
+<act>
+<spi>
+<cnt>
+<ani>
+<unv>
+<pid>
+<vlt>
+<msg>
+<data>
+<>
+
 
 <!DOCTYPE awl>
 <awl>
-<header>
-</header>
+<head>
+</head>
 <body>
 
 
