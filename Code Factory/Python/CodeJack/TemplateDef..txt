@@ -21,8 +21,9 @@ Tags:
 <vlt>
 <msg>
 <data>
-<>
+<comment>
 
+<!-- Comments, not interpreted -->
 
 <!DOCTYPE awl>
 <awl>
@@ -33,9 +34,9 @@ Tags:
 
   <act>
     For each actuator do this
-    <nw>Network Name
+    <network>Title
 
-    </nw>
+    </network>
   </act>
 
 </body>
