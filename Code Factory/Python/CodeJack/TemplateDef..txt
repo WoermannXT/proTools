@@ -1,10 +1,13 @@
 Variables:
+$blk    // Block
 $sym    // Symbol
 $des    // Description
 $num    // Contol Module Number
-$Typ    // Control Module Type
+$typ    // Control Module Type
 $plc    // PLC Number
 $Uno    // Unit Numbet
+
+$num{format}
 
 Tags:
 <head>
@@ -25,6 +28,14 @@ Tags:
 
 <!-- Comments, not interpreted -->
 
+Examples:
+<act num=1-6>
+  <network>Act$num{000} $sym $des</network>
+    A    $blk.$sym.RelExt;
+    =    $blk.$sym.Rel;
+</act>
+
+Document Template:
 <!DOCTYPE awl>
 <awl>
 <head>
