@@ -43,7 +43,7 @@ Examples:
 Document Template:
 <!DOCTYPE awl>
 <!DOCNAME P$plc{00}U$uno{000}_$sym_$des>
-<awl>
+<awl lang="en">
 <head>
 </head>
 <body>
