@@ -1,13 +1,13 @@
 ﻿FUNCTION "bioReal2Step" : Void
-TITLE = Batch I/O Convert Real (Floating Point) Value to Step Number
+TITLE = Convert Floating Point to Step
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.3
-// Batch I/O Value to Step Number Converter
+// -- Woermann Automation --
 // by Woermann Automation
 // Date: 2020-07-05
 // Description:
-// Convert a Real Number to Integer Steps
+// Convert a Real (Floating Point) Value to Step Number (Integer)
 // Switch to Step+1 if InVal >= (Current Step+1).0
 // Switch to Step-1 if InVal <= (Current Step-1).0
 // Example: Use a PID Output to Control a Number of Actuators
@@ -20,14 +20,8 @@ VERSION : 0.3
 		InVal : Real;   // Input Value Real (Floating Point) to be converted to a Step Number
 	END_VAR
 
-	VAR_OUTPUT 
-	END_VAR
-
 	VAR_IN_OUT 
 		StepVal : DInt;   // Output Value DInt Step Number (Rem)
-	END_VAR
-
-	VAR_TEMP 
 	END_VAR
 
 BEGIN
