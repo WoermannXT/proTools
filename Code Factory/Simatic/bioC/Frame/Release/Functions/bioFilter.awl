@@ -4,9 +4,9 @@ TITLE = Simple Noise Filter
 AUTHOR : Woermann
 VERSION : 0.2
 // -- Woermann Automation --
-// Real Value Noise Filter
 // Date: 2020-06-21
 // Description:
+// Real Value Noise Filter and Smoothing with delta Min and delta Max Functions
 // Val = Raw * Alpha + (Val * (1.0 - Alpha))
 // -- Inputs --
 // On: If TRUE the Filter is Active; Else the Filtered Value = Raw Value
@@ -23,9 +23,6 @@ VERSION : 0.2
 		dMin : Real;	// ABS Delta Minimum (Too Small Change, No Update of Val, If 0 then Disabled)
 		dMax : Real;	// ABS Delta Maximum (Too Big Change, Update Val with dMax, If 0 then Disabled)
 		Alpha : Real;	// Factor for Filter between 0 (0% no Update of Val) and 1 (100% no Damping, Val = Raw)
-	END_VAR
-
-	VAR_OUTPUT 
 	END_VAR
 
 	VAR_IN_OUT  
