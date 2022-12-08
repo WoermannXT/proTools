@@ -4,7 +4,6 @@ TITLE = Constrain (Limit) Value
 AUTHOR : Woermann
 VERSION : 0.1
 // -- Woermann Automation --
-// Constrain (Limit) Value
 // Date: 2020-06-26
 // Description:
 // Constrain a Value to its boundaries
@@ -27,12 +26,6 @@ VERSION : 0.1
 
 	VAR_OUTPUT 
 		OutVal : Real;	// Output Value
-	END_VAR
-
-	VAR_IN_OUT  
-	END_VAR
-
-	VAR_TEMP 
 	END_VAR
 
 BEGIN
