@@ -4,10 +4,9 @@ TITLE = Batch I/O Map (Rescale) Value
 AUTHOR : Woermann
 VERSION : 0.2
 // -- Woermann Automation --
-// ToDO: Check Inversed Function
-// Map (Rescale) Value
 // Date: 2020-06-21
 // Description:
+// Map (Rescale) a Value to a new Range
 // Caution: If InMin and InMax are Equal, the Result is a Div0!
 // By exchanging OutMin (high value) and OutMax (low value) the Result is Inverted (can be used for a normally open Regulation Valve) 
 // To Map a Standard Analog In- / Output use a Range of 0 - 27648 
