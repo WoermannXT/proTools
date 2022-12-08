@@ -1,0 +1,117 @@
+FUNCTION "Imp2Flow" : VOID
+TITLE =Use Counter Impulse to Calculate Flow 
+//The UOM of the rusult is Amount/sec. A maximum of 65535ms inbetween two 
+//impulses can be evaluated, otherwise the flow is reset to zero. 
+AUTHOR : Woermann
+VERSION : 0.1
+
+
+VAR_INPUT
+  ImpE : BOOL ;	//Counter Impulse Edge
+  ImpVal : REAL ;	//Counter Amount / Imp
+  Factor : REAL ;	//Multiplier for Value Correction (3600.0 to get Amount / h)
+  Alpha : REAL ;	//Filter Factor for Update Value (0=no Update; 1=100%Update)
+END_VAR
+VAR_IN_OUT
+  Flow : REAL ;	//Amount/sec 
+  RemMem : DINT ;	//Memory
+END_VAR
+VAR_TEMP
+  msVal : INT ;	
+  msValOld : INT ;	
+  rTmp : REAL ;	
+  lim : BOOL ;	
+  _Flow : REAL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =Init
+
+// Copy Memory to Local Data
+      L     #RemMem; 
+      T     LD     0; 
+
+
+NETWORK
+TITLE =Calc
+
+// Time Counter
+      L     "IntD".Tim.Sys.Diff; 
+      L     #msVal; 
+      +D    ; 
+      L     W#16#FFFF; 
+      >=D   ; 
+      =     #lim; 
+      JC    C1; 
+      TAK   ; 
+C1:   T     #msVal; 
+// Impulse Evaluation
+      A     #ImpE; 
+      JCN   C2; 
+      L     #msVal; 
+      T     #msValOld; 
+      L     0; 
+      T     #msVal; 
+C2:   NOP   0; 
+// Flow Calculation
+      L     #msValOld; 
+      DTR   ; 
+      L     1.000000e+003; 
+      /R    ; // ms -> s
+      L     #ImpVal; 
+      TAK   ; 
+      /R    ; 
+      T     #_Flow; 
+// Flow Reduction
+      L     #msVal; 
+      L     #msValOld; 
+      >D    ; 
+      AN    #lim; 
+      JCN   C3; 
+      -D    ; 
+      DTR   ; 
+      L     1.000000e+003; 
+      /R    ; 
+      L     #_Flow; 
+      *R    ; 
+      L     #_Flow; 
+      TAK   ; 
+      -R    ; 
+      T     #_Flow; 
+C3:   NOP   0; 
+// Flow Reset
+      L     #_Flow; 
+      L     0.000000e+000; 
+      <R    ; 
+      O     #lim; 
+      JCN   C4; 
+      T     #_Flow; 
+C4:   NOP   0; 
+// Filter Flow Value
+      L     #_Flow; 
+      L     #Factor; 
+      *R    ; 
+      L     #Alpha; 
+      *R    ; 
+      T     #_Flow; 
+      L     1.000000e+000; 
+      L     #Alpha; 
+      -R    ; 
+      L     #Flow; 
+      *R    ; 
+      L     #_Flow; 
+      +R    ; 
+      A     OV; 
+      JCN   C5; 
+      L     0; 
+C5:   T     #Flow; 
+
+NETWORK
+TITLE =Fin
+
+// Copy Local Data to Memory
+      L     LD     0; 
+      T     #RemMem; 
+
+END_FUNCTION
+
