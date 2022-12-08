@@ -1,49 +1,46 @@
-﻿FUNCTION "bioBitSum" : Void
-TITLE = Batch I/O Count TRUE Bits in Integer Number (DWord)
+FUNCTION "bioBitSum" : VOID
+TITLE = Count TRUE Bits
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.2
-// Batch I/O Bit Counter
-// by Woermann Automation
+// -- Woermann Automation --
 // Date: 2020-07-05
 // Description:
-// Count the number of TRUE Bits in a given Integer Number (DInt)
-// Using Brian Kernighan's C algorithm (v &= v - 1), only going through as many iterations as there are bits Set
-// up to 3 times faster than Siemens Standard Function BITSUM
+// Count the number of TRUE Bits in a given Word (16 Bit)
+// Using Brian Kernighan's C algorithm (v &= v - 1), only going through as many iterations as there are TRUE bits
+// -- Inputs --
+// InWord: Input word of wich the bits that are TRUE should be counted
+// -- Outputs --
+// OutByte: Result of counted TRUE Bits (Range is 0 to 16)
 
 
-	VAR_INPUT 
-		InVal : DInt;   // Input Value with Bits to be counted
+	VAR_INPUT
+		InWord : WORD ;	// Input Word with Bits to be counted
 	END_VAR
 
-	VAR_OUTPUT 
-		OutVal : Int;   // Output Value (Counted Bits Result)
+	VAR_OUTPUT
+		OutByte : BYTE ;	// Output Byte (Counted Bits Result)
 	END_VAR
-
-	VAR_IN_OUT  
-	END_VAR
-
-	VAR_TEMP 
-	END_VAR
-
 
 BEGIN
 	NETWORK
 	TITLE = Count TRUE Bits
-		L	0;
-		T	#OutVal;
-		L	#InVal;
-		PUSH;
-	L00P:AD;
-		T	#InVal;
-		L	0;
-		==I;
-		BEC;
-		L	#OutVal;
-		INC	1;
-		T	#OutVal;
-		L	#InVal;
-		PUSH;
-		LOOP L00P;
+
+		L     0; 
+		T     #OutByte; 
+		L     #InWord; 
+		PUSH  ; 
+	L00P: AW    ; 
+		T     #InWord; 
+		L     0; 
+		==D   ; 
+		BEC   ; 
+		L     #OutByte; 
+		INC   1; 
+		T     #OutByte; 
+		L     #InWord; 
+		PUSH  ; 
+		LOOP  L00P; 
 
 END_FUNCTION
+
