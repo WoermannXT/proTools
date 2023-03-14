@@ -24,10 +24,10 @@ import datetime
 import re	#Regular Expressions
 
 dctCharTags = {}
-rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {x}
+rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {(tag)?x}
 rexp1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 rexp2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
-rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z
+rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z and A-Z
 
 
 def ArgsMan(args):
