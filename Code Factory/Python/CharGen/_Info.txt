@@ -1,4 +1,4 @@
-
+()
 Python Scrit to generate multipe char strings (brute force)
 For help run: python.exe .\chargen.py -h
 
