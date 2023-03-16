@@ -1,1 +1,14 @@
+# ignore opend Excel File Temps
+~$*
+
+# ignore backup files
+.bak
+
+# ignore Python ompiled bytecode
 *.pyc
+*.pyo
+
+# ignore log files and databases
+*.log
+*.sql
+*.sqlite
