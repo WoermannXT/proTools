@@ -1,0 +1,38 @@
+	L	"MaterialNo"			// Select
+	L	45				  		// Case 1
+	==I	
+	JC	 N101
+	TAK	
+	L	34				  		// Case 2
+	==I	
+	JC	 N102
+	TAK	
+	L	392				 		// Case 3
+	==I	
+	JC	 N103
+	TAK	
+	L	94				  		// Case 4
+	==I	
+	JC	 N104
+	JU	 ELN1
+N101: NOP	0					// Do 1
+// ...
+
+	JU	 FIN1
+N102: NOP	0					// Do 2
+// ...
+
+	JU	 FIN1
+N103: NOP	0					// Do 3
+// ...
+
+	JU	 FIN1
+N104: NOP	0					// Do 4
+// ...
+
+	JU	 FIN1
+ELN1: NOP	0					// Do Else
+// ...
+
+
+FIN1:  NOP	0
