@@ -1,5 +1,7 @@
 // Woermann Automation 2022
 // EquipmentID = 1000 * PLCNo + UnitNo
+// EqID int
+
 
 // EqID --> PLCNo and UnitNo
       L     #realEqID; 
