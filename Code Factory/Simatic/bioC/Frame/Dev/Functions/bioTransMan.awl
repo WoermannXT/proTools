@@ -4,7 +4,7 @@ TITLE = Batch I/O Transfer Manager
 AUTHOR : Woermann
 VERSION : 0.1
 //Block to Unify and Manage Transfer Communication Signals
-	VAR_INPUT 
+	VAR_INPUT
 		Master : Bool;   // True if this is the Transfer Master
 		LocalID : DInt;   // Local ID like PrID or selected Equipment
 		PartnerID : DInt;   // Partner ID like PrID or Equipment
@@ -15,10 +15,10 @@ VERSION : 0.1
 	END_VAR
 
 	VAR_IN_OUT 
-		rtGet : Bool;   // Need new Text
-		rtPut : Bool;
-		reGet : Bool;
-		rePut : Bool;   // Release / Request Put
+		rtRec : Bool;   // Ready to Receive
+		rtSnd : Bool;   // Ready to Send
+		reRec : Bool;   // Release / Request Receive
+		reSnd : Bool;   // Release / Request Send
 	END_VAR
 
 

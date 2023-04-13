@@ -171,7 +171,10 @@ def phash(image, hash_size=8): #complex
 	bs = ''.join(str(b) for b in 1 * d.flatten()) #convert array to a bit string
 	l = int(numpy.ceil(len(bs)/4)) #length of hash
 	return '{:0>{l}x}'.format(int(bs, 2), l=l)
-	
+
+# Compute the Hamming distance between the pHash values to determine the similarity between the images
+def ham_dist(h1, h2):
+	return bin(h1 ^ h2).count('1')
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
