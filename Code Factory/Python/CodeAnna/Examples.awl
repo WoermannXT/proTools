@@ -1,0 +1,243 @@
+This is a test Block to extract the content by regex
+---- // -----
+
+FUNCTION_BLOCK "C01Seq"
+TITLE =C01: Water Tank x
+// NW  1 : phase and index evaluation
+// NW  2 : phase  1: start position
+// 42 : Material                            Value
+AUTHOR : Woermann
+NAME : C01Seq
+VERSION : 0.1
+CODE_VERSION1
+
+
+VAR
+  U : "C01UDT";	
+END_VAR
+VAR_TEMP
+  CIP : BOOL ;	//CIP active
+  ComCIP : BOOL ;	//Communication With CIP Active 
+  ComSRC : BOOL ;	//Communication With Well Transfer x
+  EquipmentID : INT ;	//Equipment ID
+  S2I : STRUCT 	//SFM to indexes
+   SFM26 : STRUCT 	//Cip Step On Condition
+    I00 : BOOL ;	//Please Select
+    I01 : BOOL ;	//Conductivity High
+    I02 : BOOL ;	//Conductivity Low
+    I03 : BOOL ;	//Time
+    I04 : BOOL ;	//Amount
+    I05 : BOOL ;	//Temperature High
+    I06 : BOOL ;	//Temperature Low
+   END_STRUCT ;	
+  END_STRUCT ;	
+  ComDST : BOOL ;	//Communication Water Transfer to Packaging Plant
+END_VAR
+BEGIN
+NETWORK
+TITLE = Phase and Index Evaluation
+
+
+      CLR   ; 
+      =     #RRel; 
+      =     #ReqInlet; 
+      =     #RelOutlet; 
+      L     0; 
+      T     #ComLine; 
+
+// ---------------------------------------------------------------------------
+// write max used SFM's (last SFM number + 1) 
+      L     60; 
+      T     #U.SFMQuant; 
+
+// ---------------------------------------------------------------------------
+// unit & equipment number 
+      L     "SOUnitNo"; 
+      T     #UnitNo; 
+
+      L     "C01ComD".Own.PLCNo; 
+      L     1000; 
+      *I    ; 
+      L     #UnitNo; 
+      +I    ; 
+      T     #EquipmentID; 
+
+// ---------------------------------------------------------------------------
+// process timer start
+      SET   ; 
+      =     "SFM09S"; 
+
+// ---------------------------------------------------------------------------
+// emergency OK 
+      A     "C01ComD".Own.EStopOK; 
+      =     #EStopOK; 
+
+// define last (Sub)Step active
+      L     #U.Seq.StepMax; 
+      L     "SOStepAct"; 
+      ==I   ; 
+      =     #StepMax; 
+
+      L     #U.Seq.SubStepMax; 
+      L     "SOSubStepAct"; 
+      ==I   ; 
+      =     #SubStepMax; 
+
+      A     #SubStepMax; 
+      A     #U.Seq.SPD; 
+      AN    "SOSPFC"; 
+      =     #SubStepMaxD; 
+
+// ---------------------------------------------------------------------------
+// phase evaluation
+      L     "SOPhase"; 
+      JL    X0; 
+      JU    X0; // phase  0:
+      JU    X1; // phase  1: start position
+      JU    X0; // phase  2:
+      JU    X0; // phase  3:
+      JU    X4; // phase  4: Filling
+      JU    X5; // phase  5: Storage
+      JU    X0; // phase  6:
+      JU    X0; // phase  7:
+      JU    X8; // phase  8: Emptying
+      JU    X0; // phase  9:
+      JU    X0; // phase 10:
+      JU    X0; // phase 11:
+      JU    X0; // phase 12:
+      JU    X0; // phase 13:
+      JU    X0; // phase 14:
+      JU    X0; // phase 15:
+      JU    X0; // phase 16:
+      JU    X0; // phase 17:
+      JU    X0; // phase 18:
+      JU    X0; // phase 19:
+      JU    X20; // phase 20: Quality Check
+X0:   SET   ; 
+      S     "SOPNE"; // Error unknown phase
+      JU    COMM; 
+NETWORK
+TITLE =phase 1: startposition
+// test
+X1:   SET   ; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+// ---------------------------------------------------------------------------
+// reset signals 
+      A     "SOPFC"; 
+      R     #U.Seq.Switch.Sw1; 
+      R     #U.Seq.Switch.Sw2; 
+
+      AN    "SOPA"; 
+      =     "SFM09Res"; // Reset Process Timer 
+
+      CALL "SimIgnReset" (// Reset "Simulation" And "Ignore" 
+           UnitNo                   := #UnitNo,// Of All Control Modules 
+           Enable                   := "SOPFC");// At First Cycle of Startposition (Idle)
+
+// ---------------------------------------------------------------------------
+// start check --------------------------------------------------------------
+      A     #CIP; 
+      JC    M010; 
+
+      CALL "C01Start" (
+           ChkType                  := 1,// production
+           ChkOK                    := "SOStPOK");
+      JU    COMM; 
+
+M010: CALL "C01Start" (
+           ChkType                  := 2,// CIP
+           ChkOK                    := "SOStPOK");
+      JU    COMM; 
+NETWORK
+TITLE =phase 20: Quality Check 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 39 : Q-Status                            Enumeration     min
+X20:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: Q-Status
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[39].Sp,
+           Indexes                  := #S2I.SFM39);
+
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// control modules 
+      A     "SOPH"; 
+
+// transition condition 
+      A     #SubStepMaxD; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    C000; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+C000: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =End Of Sequence Organisation
+
+COMM: SET   ; 
+
+// pause timer unit parameter
+      ON    "SOPH"; 
+      O     "SFM09D"; 
+      S     "SFM09P"; // Process Time
+
+NETWORK
+TITLE =General Post Phase Controls
+
+      NOP   0; 
+
+// general postphase controls  
+      L     "C01ComD".SRC.UnitNo; 
+      L     29; // B6F 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".B6F_T13.ACo; 
+
+NETWORK
+TITLE =Unit Hold Request and Messages
+
+      SET   ; 
+
+// ---------------------------------------------------------------------------
+// Set unit to "hold" if maintenance
+      AN    #U.Seq.Switch.Sw31; // maintenance !
+      JC    NCO1; 
+      S     "SOHoldReq"; 
+      L     998; // "Unit in maintenance !"
+      T     "SOMessage"; 
+
+// ---------------------------------------------------------------------------
+// Set unit to "hold" if emergency stop
+NCO1: A     #EStopOK; 
+      JC    NCO2; 
+      S     "SOHoldReq"; 
+      L     999; // "Emergency stop !"
+      T     "SOMessage"; 
+NCO2: NOP   0; 
+
+END_FUNCTION_BLOCK
+
+
+This is a test Block to extract the content by regex
+---- // -----

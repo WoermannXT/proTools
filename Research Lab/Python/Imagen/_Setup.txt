@@ -1,0 +1,10 @@
+Node OS:
+	SUSE Enterprise Server
+	Ubuntu Server LTS
+Data Store:
+	Apache Cassandra
+Non-cryptographic hashing for IDs:
+	FarmHash128
+
+
+

@@ -1,0 +1,87 @@
+A statement is made up of a label (optional), instruction, address/value (optional), and comment (optional).
+Example:
+M001:   A      I 1.0;     //Comment
+
+Statement Line:
+(?P<labl>\w+:)?\s+(?P<inst>[A-Z1-2()<>=*/+-]+)?\s+(?P<addr>[^;\n]+)?\s*(?://(?P<comm>[^\n]*))?
+
+Tags:
+\s+(?:\"(?P<tag>[^;\"\s]*)\")		// Needs check???
+	tag = Tag Identifier
+
+Block Header:
+\s*(?P<bloc>FUNCTION|DATA_BLOCK|TYPE) *[\"']?(?P<val>[^\"'\]\#]*)[\"'].*
+	bloc = Block Type
+	val = Block Name
+\s*(?P<titl>TITLE)\s*=\s*(?P<val>.*)?
+	titl = Title Identifier
+	val = Title
+\s*(?P<auth>AUTHOR)\s*:\s*[\"']?(?P<val>[^\"'\]\#]*)[\"']?.*
+	auth = Author Identifier
+	val = Author Name
+\s*(?P<ver>VERSION)\s*:\s*[\"']?(?P<val>[^\"'\]\#]*)[\"']?.*
+	ver = Version Identifier
+	val = Version Number
+
+Comment Line:
+\s*//\s*(?P<comm>//[^\n]+)\s*
+	comm = Comment Line
+
+Block Parameters:
+\s*(?P<vinp>VAR_INPUT)\s*
+	vinp = Input Variables Start
+\s*(?P<vino>VAR_IN_OUT)\s*
+	vino = Input / Output Variables Start
+\s*(?P<vout>VAR_OUT)\s*
+	vino = Output Variables Start
+\s*(?P<vtmp>VAR_TEMP)\s*
+	vtmp = Temp Variables Start
+\s*(?P<vend>END_VAR)\s*
+	vend = Variables END_VAR
+\s*(?P<vsym>\w+)\s*(?P<para>{[^}]*})?\s*:\s*['\"]?(?P<vtyp>[^\s'\"]*)['\"]?\s*(?::=\s*(?P<defv>[^;}]*)? *)?;\s*(?://\s*(?P<comm>.*)\s*)?\s*
+	vsym = Variable Symbol
+	para = Parameters (not relevant for Report)
+	vtyp = Variable Type
+	defv = Default Value
+	comm = Comment
+
+Block Code:
+\s*(?P<begn>BEGIN)\s*
+	begn = Begin of Code
+\s*(?P<end>END_FUNCTION|END_DATA_BLOCK|END_TYPE)\s*
+	end = End of Block
+
+Network Code:
+\s*(?P<netw>NETWORK)\s*
+	netw = Begin of Netork
+\s*(?P<titl>TITLE) *= *(?P<val>.*)?	-- See also Title of Block Header --
+	titl = Title Identifier
+	val = Title
+
+Called Functions / -Blocks:	//Needs to be tested???
+\s*CALL\s+"(?P<fcn>\w+)"\s*\(\s*(?:\s*(?P<param>\w+)\s*:=\s*(?P<val>#?\w+(?:\.\w+)?)\s*,?\s*)+\s*\);\s*
+
+
+
+
+ *
+(?P<cmd>\s(AN?|ON?|XN?|L|T)\s)
+ +
+(?:
+(?:#(?P<lvar>[^;]*);)
+|(?P<data>(?:\"(?P<tag>[^;\" ]*)\")\.(?P<mod>\w*)\.(?P<sig>\w*))
+|(?:\"(?P<tag>[^;\" ]*)\")
+|(?:#(?P<udef>[^;]*)
+)
+;)
+
+
+
+
+
+
+
+
+
+
+

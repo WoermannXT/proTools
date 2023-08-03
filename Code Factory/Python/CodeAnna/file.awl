@@ -1,0 +1,2746 @@
+FUNCTION_BLOCK "C01Seq"
+TITLE =C01: Water Tank x
+// NW  1 : phase and index evaluation
+// NW  2 : phase  1: start position
+// NW  3 : phase  4: Filling
+// NW  4 : phase  5: Storage
+// NW  5 : phase  8: Emptying
+// NW  6 : phase 20: Quality Check
+// NW  7 : phase 21: Prepare Tank
+// NW  8 : phase 23: Connect Tank
+// NW  9 : phase 31: CIP Start
+// NW 10 : phase 32: CIP Prerun
+// NW 11 : phase 33: CIP Return
+// NW 12 : phase 34: CIP Rinsing
+// NW 13 : phase 35: CIP Emptying
+// NW 14 : phase 36: CIP Drain
+// NW 15 : phase 40: CIP End
+// NW 16 : end of sequence
+// NW 17 : unit hold request
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 09 : Process Time                        Duration        min
+// 40 : Density                             Value           kg/l
+// 42 : Material                            Value
+AUTHOR : Woermann
+NAME : C01Seq
+VERSION : 0.1
+CODE_VERSION1
+
+
+VAR
+  U : "C01UDT";	
+END_VAR
+VAR_TEMP
+  CIP : BOOL ;	//CIP active
+  ComCIP : BOOL ;	//Communication With CIP Active 
+  ComSRC : BOOL ;	//Communication With Well Transfer x
+  RRel : BOOL ;	//Run Release 
+  EStopOK : BOOL ;	//emergency OK
+  StepMax : BOOL ;	//StepMax (last) active
+  SubStepMax : BOOL ;	//SubStepMax (last) active
+  SubStepMaxD : BOOL ;	//SubStepMax (last) done
+  ChkOK : BOOL ;	//SubStepMax (last) done
+  xTmp : BOOL ;	//Temporary BOOL (free for general use) 
+  iTmp : INT ;	//Temporary INT (free for general use) 
+  dTmp : DINT ;	//Temporary DINT (free for general use)
+  rTmp : REAL ;	//Temporary REAL (free for general use)
+  dUnitNo : DINT ;	//Unit Number 
+  UnitNo : INT ;	//Unit Number 
+  EquipmentID : INT ;	//Equipment ID
+  S2I : STRUCT 	//SFM to indexes
+   SFM26 : STRUCT 	//Cip Step On Condition
+    I00 : BOOL ;	//Please Select
+    I01 : BOOL ;	//Conductivity High
+    I02 : BOOL ;	//Conductivity Low
+    I03 : BOOL ;	//Time
+    I04 : BOOL ;	//Amount
+    I05 : BOOL ;	//Temperature High
+    I06 : BOOL ;	//Temperature Low
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	
+    I13 : BOOL ;	
+    I14 : BOOL ;	
+    I15 : BOOL ;	
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+   SFM27 : STRUCT 	//Cip Prerun
+    I00 : BOOL ;	//None
+    I01 : BOOL ;	//Recovered Water
+    I02 : BOOL ;	//Caustic
+    I03 : BOOL ;	
+    I04 : BOOL ;	//Acid
+    I05 : BOOL ;	
+    I06 : BOOL ;	
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	//Fresh Water
+    I13 : BOOL ;	//Warm Water
+    I14 : BOOL ;	
+    I15 : BOOL ;	
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+   SFM28 : STRUCT 	//Cip Return
+    I00 : BOOL ;	//None
+    I01 : BOOL ;	//Recovered Water
+    I02 : BOOL ;	//Caustic
+    I03 : BOOL ;	
+    I04 : BOOL ;	//Acid
+    I05 : BOOL ;	
+    I06 : BOOL ;	
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	//Fresh Water
+    I13 : BOOL ;	//Warm Water
+    I14 : BOOL ;	
+    I15 : BOOL ;	//Drain
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+   SFM37 : STRUCT 	//Cip Pump Mode
+    I00 : BOOL ;	//Off
+    I01 : BOOL ;	//Flow
+    I02 : BOOL ;	//Pressure
+    I03 : BOOL ;	//Fix Speed
+    I04 : BOOL ;	
+    I05 : BOOL ;	
+    I06 : BOOL ;	
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	
+    I13 : BOOL ;	
+    I14 : BOOL ;	
+    I15 : BOOL ;	
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+   SFM31 : STRUCT 	//Cip Distribution Circuit No
+    I00 : BOOL ;	//Please Select
+    I01 : BOOL ;	//Auto Select
+    I02 : BOOL ;	
+    I03 : BOOL ;	
+    I04 : BOOL ;	
+    I05 : BOOL ;	
+    I06 : BOOL ;	
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	
+    I13 : BOOL ;	
+    I14 : BOOL ;	
+    I15 : BOOL ;	
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+   SFM39 : STRUCT 	//Q-Status
+    I00 : BOOL ;	//Please select
+    I01 : BOOL ;	//released
+    I02 : BOOL ;	
+    I03 : BOOL ;	
+    I04 : BOOL ;	
+    I05 : BOOL ;	
+    I06 : BOOL ;	//Ignore
+    I07 : BOOL ;	
+    I08 : BOOL ;	
+    I09 : BOOL ;	//locked
+    I10 : BOOL ;	
+    I11 : BOOL ;	
+    I12 : BOOL ;	
+    I13 : BOOL ;	
+    I14 : BOOL ;	
+    I15 : BOOL ;	
+    I16 : BOOL ;	
+    I17 : BOOL ;	
+    I18 : BOOL ;	
+    I19 : BOOL ;	
+    I20 : BOOL ;	
+    I21 : BOOL ;	
+    I22 : BOOL ;	
+    I23 : BOOL ;	
+    I24 : BOOL ;	
+    I25 : BOOL ;	
+    I26 : BOOL ;	
+    I27 : BOOL ;	
+    I28 : BOOL ;	
+    I29 : BOOL ;	
+    I30 : BOOL ;	
+    I31 : BOOL ;	
+   END_STRUCT ;	
+  END_STRUCT ;	
+  ComDST : BOOL ;	//Communication Water Transfer to Packaging Plant
+  ComCIPDist : BOOL ;	//Communication with CIP Distribution
+  ReqInlet : BOOL ;	//Request Inlet
+  RelOutlet : BOOL ;	//Release Outlet
+  Empty : BOOL ;	//Tank Empty
+  reqAnlage : BOOL ;	//Destination Requests Filling
+  ComU043 : BOOL ;	
+  ComU045 : BOOL ;	
+  ComU047 : BOOL ;	
+  ComU048 : BOOL ;	
+  ComU049 : BOOL ;	
+  ComU050 : BOOL ;	
+  ComU051 : BOOL ;	
+  ComU052 : BOOL ;	
+  ComU054 : BOOL ;	
+  ComU055 : BOOL ;	
+  ComU056 : BOOL ;	
+  ComU057 : BOOL ;	
+  ComU058 : BOOL ;	
+  ComLine : INT ;	//Check Line Communikation and send to all lines
+END_VAR
+BEGIN
+NETWORK
+TITLE = Phase and Index Evaluation
+
+
+      CLR   ; 
+      =     #RRel; 
+      =     #ReqInlet; 
+      =     #RelOutlet; 
+      L     0; 
+      T     #ComLine; 
+
+// ---------------------------------------------------------------------------
+// write max used SFM's (last SFM number + 1) 
+      L     60; 
+      T     #U.SFMQuant; 
+
+// ---------------------------------------------------------------------------
+// unit & equipment number 
+      L     "SOUnitNo"; 
+      T     #UnitNo; 
+
+      L     "C01ComD".Own.PLCNo; 
+      L     1000; 
+      *I    ; 
+      L     #UnitNo; 
+      +I    ; 
+      T     #EquipmentID; 
+
+// ---------------------------------------------------------------------------
+// CIP active 
+      L     "SOProgNo"; 
+      L     0; 
+      <I    ; 
+      =     #CIP; 
+
+// ---------------------------------------------------------------------------
+// communicating units 
+      L     "SOPrId"; 
+      L     "C01ComD".CIP.PrId; 
+      ==D   ; 
+      =     #ComCIP; 
+
+      L     "SOPrId"; 
+      L     "U094ComD".Own.PrId; // CIP Dist 1
+      ==D   ; 
+      =     #ComCIPDist; 
+
+      A(    ; 
+      L     "C01ComD".SRC.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==D   ; 
+      )     ; 
+      A(    ; 
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "C01ComD".SRC.Real01; 
+      ==R   ; 
+      )     ; 
+      =     #ComSRC; 
+
+
+
+
+      CLR   ; 
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U043ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U043ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU043; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U045ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U045ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU045; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U047ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U047ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU047; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U048ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U048ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU048; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U049ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U049ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU049; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U050ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U050ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU050; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U051ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U051ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU051; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U052ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U052ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU052; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U054ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U054ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU054; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U055ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U055ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU055; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U056ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U056ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU056; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U057ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U057ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU057; 
+
+      A(    ; // Material Check
+      L     #U.Seq.SFM[42].Sp; // Material
+      L     "U058ComD".Own.Real01; 
+      ==R   ; 
+      )     ; 
+      A(    ; 
+      L     "U058ComD".Own.Real02; 
+      RND   ; 
+      L     #EquipmentID; 
+      ==R   ; 
+      )     ; 
+      =     #ComU058; 
+
+
+
+      CLR   ; 
+      =     #ComDST; 
+
+
+
+// ---------------------------------------------------------------------------
+// process timer start
+      SET   ; 
+      =     "SFM09S"; 
+
+// ---------------------------------------------------------------------------
+// emergency OK 
+      A     "C01ComD".Own.EStopOK; 
+      =     #EStopOK; 
+
+// define last (Sub)Step active
+      L     #U.Seq.StepMax; 
+      L     "SOStepAct"; 
+      ==I   ; 
+      =     #StepMax; 
+
+      L     #U.Seq.SubStepMax; 
+      L     "SOSubStepAct"; 
+      ==I   ; 
+      =     #SubStepMax; 
+
+      A     #SubStepMax; 
+      A     #U.Seq.SPD; 
+      AN    "SOSPFC"; 
+      =     #SubStepMaxD; 
+
+// ---------------------------------------------------------------------------
+// phase evaluation
+      L     "SOPhase"; 
+      JL    X0; 
+      JU    X0; // phase  0:
+      JU    X1; // phase  1: start position
+      JU    X0; // phase  2:
+      JU    X0; // phase  3:
+      JU    X4; // phase  4: Filling
+      JU    X5; // phase  5: Storage
+      JU    X0; // phase  6:
+      JU    X0; // phase  7:
+      JU    X8; // phase  8: Emptying
+      JU    X0; // phase  9:
+      JU    X0; // phase 10:
+      JU    X0; // phase 11:
+      JU    X0; // phase 12:
+      JU    X0; // phase 13:
+      JU    X0; // phase 14:
+      JU    X0; // phase 15:
+      JU    X0; // phase 16:
+      JU    X0; // phase 17:
+      JU    X0; // phase 18:
+      JU    X0; // phase 19:
+      JU    X20; // phase 20: Quality Check
+      JU    X21; // phase 21: Prepare Tank
+      JU    X0; // phase 22:
+      JU    X23; // phase 23: Connect Tank
+      JU    X0; // phase 24:
+      JU    X0; // phase 25:
+      JU    X0; // phase 26:
+      JU    X0; // phase 27:
+      JU    X0; // phase 28:
+      JU    X0; // phase 29:
+      JU    X0; // phase 30:
+      JU    X31; // phase 31: CIP Start
+      JU    X32; // phase 32: CIP Prerun
+      JU    X33; // phase 33: CIP Return
+      JU    X34; // phase 34: CIP Rinsing
+      JU    X35; // phase 35: CIP Emptying
+      JU    X36; // phase 36: CIP Drain
+      JU    X0; // phase 37:
+      JU    X0; // phase 38:
+      JU    X0; // phase 39:
+      JU    X40; // phase 40: CIP End
+X0:   SET   ; 
+      S     "SOPNE"; // Error unknown phase
+      JU    COMM; 
+NETWORK
+TITLE =phase 1: startposition
+
+X1:   SET   ; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+// ---------------------------------------------------------------------------
+// reset signals 
+      A     "SOPFC"; 
+      R     #U.Seq.Switch.Sw1; 
+      R     #U.Seq.Switch.Sw2; 
+
+      AN    "SOPA"; 
+      =     "SFM09Res"; // Reset Process Timer 
+
+      CALL "SimIgnReset" (// Reset "Simulation" And "Ignore" 
+           UnitNo                   := #UnitNo,// Of All Control Modules 
+           Enable                   := "SOPFC");// At First Cycle of Startposition (Idle)
+
+// ---------------------------------------------------------------------------
+// start check --------------------------------------------------------------
+      A     #CIP; 
+      JC    M010; 
+
+      CALL "C01Start" (
+           ChkType                  := 1,// production
+           ChkOK                    := "SOStPOK");
+      JU    COMM; 
+
+M010: CALL "C01Start" (
+           ChkType                  := 2,// CIP
+           ChkOK                    := "SOStPOK");
+      JU    COMM; 
+NETWORK
+TITLE =phase 4: Filling 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 17 : Level                               Value           l
+X4:   SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+      A     "SOPH"; 
+      =     "C01ComD".Own.WfFi; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      AN    "C01ComD".SRC.WfEm; 
+      ON    "C01SpiD".LS_HL_T13.Sig; 
+      O     "SFM19D"; // Emptying Release
+      AN    "C01SpiD".LS_LLL_T13.Sig; 
+      =     #xTmp; 
+
+      A     #xTmp; 
+      AN    "SOPFC"; 
+      =     "SOPD"; 
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// subphase repeat function
+      A     #SubStepMax; 
+      JCN   Y4; 
+      L     1; 
+      T     "SOSubStepNew"; 
+Y4:   SET   ; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    A400; 
+      JU    COMM; // subphase  0:
+      JU    A401; // subphase  1: Waiting
+      JU    A402; // subphase  2: Active
+// ---------------------------------------------------------------------------
+A400: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+// subphase 1: Waiting
+A401: SET   ; 
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+
+
+// -------------------------------------------------
+// subphase transition 
+      A     "C01ComD".SRC.Emti; 
+      A     #ComSRC; 
+      AN    "SOSPFC"; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 2: Active
+A402: SET   ; 
+      A     #U.Seq.User.Bit2; 
+      A     "SOSPH"; 
+      =     "C01ComD".Own.Fill; 
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+      =     #ReqInlet; 
+// -------------------------------------------------
+// subphase transition 
+      AN    "C01ComD".SRC.Emti; 
+      ON    #ComSRC; 
+      =     "SOSPD"; 
+      JU    COMM; 
+NETWORK
+TITLE =phase 5: Production
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 05 : Substep Time                        Duration        s
+// 17 : Level                               Value           l
+X5:   SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+      A     "SOPH"; 
+      =     "C01ComD".Own.WfEm; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+      ON    "SOPH"; 
+      O     "SFM05D"; 
+      S     "SFM05P"; // Substep Time
+
+// ---------------------------------------------------------------------------
+// communication
+      A     "U043ComD".Own.Fill; 
+      A     #ComU043; 
+      O     ; 
+      A     "U045ComD".Own.Fill; 
+      A     #ComU045; 
+      O     ; 
+      A     "U047ComD".Own.Fill; 
+      A     #ComU047; 
+      O     ; 
+      A     "U048ComD".Own.Fill; 
+      A     #ComU048; 
+      O     ; 
+      A     "U049ComD".Own.Fill; 
+      A     #ComU049; 
+      O     ; 
+      A     "U050ComD".Own.Fill; 
+      A     #ComU050; 
+      O     ; 
+      A     "U051ComD".Own.Fill; 
+      A     #ComU051; 
+      O     ; 
+      A     "U052ComD".Own.Fill; 
+      A     #ComU052; 
+      O     ; 
+      A     "U054ComD".Own.Fill; 
+      A     #ComU054; 
+      O     ; 
+      A     "U055ComD".Own.Fill; 
+      A     #ComU055; 
+      O     ; 
+      A     "U056ComD".Own.Fill; 
+      A     #ComU056; 
+      O     ; 
+      A     "U057ComD".Own.Fill; 
+      A     #ComU057; 
+      O     ; 
+      A     "U058ComD".Own.Fill; 
+      A     #ComU058; 
+      =     #reqAnlage; 
+
+
+
+// ---------------------------------------------------------------------------
+// control modules 
+      A     "SOPH"; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      AN    "C01ComD".SRC.WfEm; 
+      ON    "C01SpiD".LS_HL_T13.Sig; 
+      O     "SFM19D"; // Emptying Release
+      AN    "C01SpiD".LS_LLL_T13.Sig; 
+      =     #xTmp; 
+
+
+      AN    #xTmp; 
+      ON    #ComSRC; 
+      AN    "SOPFC"; 
+      =     "SOPD"; 
+
+      AN    #xTmp; 
+      JCN   N401; 
+      L     "SOStepAct"; 
+      L     1; 
+      -I    ; 
+      T     "SOStepNew"; 
+N401: SET   ; 
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// subphase repeat function
+      A     #SubStepMax; 
+      JCN   Y5; 
+      L     1; 
+      T     "SOSubStepNew"; 
+Y5:   SET   ; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    A500; 
+      JU    COMM; // subphase  0:
+      JU    A501; // subphase  1: Waiting
+      JU    A502; // subphase  2: Active
+// ---------------------------------------------------------------------------
+A500: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+// subphase 1: Waiting
+A501: SET   ; 
+      A     "SOSPH"; 
+      =     "C01ComD".Own.WfFi; 
+      R     "C01ComD".Own.Emti; 
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+/// A     "C01ComD".DST.Fill
+      A     #reqAnlage; 
+      O     "C01ComD".SRC.Emti; 
+      A     #ComSRC; 
+      AN    "C01SpiD".LABOR_FREIG_T13.Sig; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 2: Active
+A502: SET   ; 
+// Communication Filling
+      A     #U.Seq.User.Bit2; 
+      A     "SOSPH"; 
+      =     "C01ComD".Own.Fill; 
+
+      AN    "C01ComD".SRC.Emti; 
+      A     "SOSPH"; 
+      =     "C01ComD".Own.WfFi; 
+
+// Communication Emptying
+
+///    AN    "C01ComD".DST.Fill
+//      AN    #reqFill
+      A     "SOSPH"; 
+      =     "C01ComD".Own.WfEm; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator
+
+
+// Emptying -------------
+      CLR   ; 
+      =     "C01ComD".Own.Emti; 
+//KEG
+      A     "U043ComD".Own.Fill; 
+      A     #ComU043; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act3.ACo; 
+
+      A     "C01ActD".Act3.ACo; 
+      A     "C01ActD".Act3.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A3rm; 
+      L     #ComLine; 
+      L     1; 
+      OW    ; 
+      T     #ComLine; 
+A3rm: NOP   0; 
+//A5
+      A     "U045ComD".Own.Fill; 
+      A     #ComU045; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A5.ACo; 
+
+      A     "C01ActD".T13_A5.ACo; 
+      A     "C01ActD".T13_A5.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A5rm; 
+      L     #ComLine; 
+      L     2; 
+      OW    ; 
+      T     #ComLine; 
+A5rm: NOP   0; 
+
+//A7
+      A     "U047ComD".Own.Fill; 
+      A     #ComU047; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A7.ACo; 
+
+      A     "C01ActD".T13_A7.ACo; 
+      A     "C01ActD".T13_A7.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A7rm; 
+      L     #ComLine; 
+      L     4; 
+      OW    ; 
+      T     #ComLine; 
+A7rm: NOP   0; 
+
+//A9
+      A     "U049ComD".Own.Fill; 
+      A     #ComU049; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A9.ACo; 
+
+      A     "C01ActD".T13_A9.ACo; 
+      A     "C01ActD".T13_A9.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A9rm; 
+      L     #ComLine; 
+      L     8; 
+      OW    ; 
+      T     #ComLine; 
+A9rm: NOP   0; 
+
+//A10
+      A     "U050ComD".Own.Fill; 
+      A     #ComU050; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A10.ACo; 
+
+      A     "C01ActD".T13_A10.ACo; 
+      A     "C01ActD".T13_A10.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AArm; 
+      L     #ComLine; 
+      L     16; 
+      OW    ; 
+      T     #ComLine; 
+AArm: NOP   0; 
+
+//A11
+      A     "U051ComD".Own.Fill; 
+      A     #ComU051; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A11.ACo; 
+
+      A     "C01ActD".T13_A11.ACo; 
+      A     "C01ActD".T13_A11.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   ABrm; 
+      L     #ComLine; 
+      L     32; 
+      OW    ; 
+      T     #ComLine; 
+ABrm: NOP   0; 
+
+//A12
+      A     "U052ComD".Own.Fill; 
+      A     #ComU052; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A12.ACo; 
+
+      A     "C01ActD".T13_A12.ACo; 
+      A     "C01ActD".T13_A12.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   ACrm; 
+      L     #ComLine; 
+      L     64; 
+      OW    ; 
+      T     #ComLine; 
+ACrm: NOP   0; 
+
+//A14
+      A     "U054ComD".Own.Fill; 
+      A     #ComU054; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A14.ACo; 
+
+      A     "C01ActD".T13_A14.ACo; 
+      A     "C01ActD".T13_A14.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AFrm; 
+      L     #ComLine; 
+      L     128; 
+      OW    ; 
+      T     #ComLine; 
+AFrm: NOP   0; 
+
+//Frischwasser
+      A     "U056ComD".Own.Fill; 
+      A     #ComU056; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act1.ACo; 
+
+      A     "C01ActD".Act1.ACo; 
+      A     "C01ActD".Act1.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AXrm; 
+      L     #ComLine; 
+      L     256; 
+      OW    ; 
+      T     #ComLine; 
+AXrm: NOP   0; 
+
+//Brauhaus
+      A     "U057ComD".Own.Fill; 
+      A     #ComU057; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act2.ACo; 
+
+      A     "C01ActD".Act2.ACo; 
+      A     "C01ActD".Act2.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AYrm; 
+      L     #ComLine; 
+      L     512; 
+      OW    ; 
+      T     #ComLine; 
+AYrm: NOP   0; 
+//Sirupraum
+      A     "U058ComD".Own.Fill; 
+      A     #ComU058; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act4.ACo; 
+
+      A     "C01ActD".Act4.ACo; 
+      A     "C01ActD".Act4.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AZrm; 
+      L     #ComLine; 
+      L     1024; 
+      OW    ; 
+      T     #ComLine; 
+AZrm: NOP   0; 
+
+
+      A     #ComSRC; 
+      A     "C01ComD".SRC.Emti; 
+      A     "SOSPH"; 
+      =     #ReqInlet; 
+
+// -------------------------------------------------
+// subphase transition 
+/// AN    "C01ComD".DST.Fill
+      AN    #reqAnlage; 
+      AN    "C01ComD".SRC.Emti; 
+      ON    #ComSRC; 
+      =     "SOSPD"; 
+      JU    COMM; 
+NETWORK
+TITLE =phase 8: Emptying 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 04 : Delay Empty                         Duration        s
+// 17 : Level                               Value           l
+X8:   SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+      A     "SOPH"; 
+      S     "C01ComD".Own.WfEm; 
+
+      A     "SFM18D"; // Befüllfreigabe
+      A     "SOPH"; 
+      S     "C01ComD".Own.WfFi; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "C01SpiD".LS_LLL_T13.Sig; 
+      A     "SOPA"; 
+      =     "SFM04S"; // Delay Empty
+
+// ---------------------------------------------------------------------------
+// pause timer
+      ON    "SOPH"; 
+      O     "SFM04D"; 
+      S     "SFM04P"; // Delay Empty
+
+// ---------------------------------------------------------------------------
+// communication
+      A     "U043ComD".Own.Fill; 
+      A     #ComU043; 
+      O     ; 
+      A     "U045ComD".Own.Fill; 
+      A     #ComU045; 
+      O     ; 
+      A     "U047ComD".Own.Fill; 
+      A     #ComU047; 
+      O     ; 
+      A     "U048ComD".Own.Fill; 
+      A     #ComU048; 
+      O     ; 
+      A     "U049ComD".Own.Fill; 
+      A     #ComU049; 
+      O     ; 
+      A     "U050ComD".Own.Fill; 
+      A     #ComU050; 
+      O     ; 
+      A     "U051ComD".Own.Fill; 
+      A     #ComU051; 
+      O     ; 
+      A     "U052ComD".Own.Fill; 
+      A     #ComU052; 
+      O     ; 
+      A     "U054ComD".Own.Fill; 
+      A     #ComU054; 
+      O     ; 
+      A     "U055ComD".Own.Fill; 
+      A     #ComU055; 
+      O     ; 
+      A     "U056ComD".Own.Fill; 
+      A     #ComU056; 
+      O     ; 
+      A     "U057ComD".Own.Fill; 
+      A     #ComU057; 
+      O     ; 
+      A     "U058ComD".Own.Fill; 
+      A     #ComU058; 
+      =     #reqAnlage; 
+
+
+// ---------------------------------------------------------------------------
+// control modules 
+      A     "SOPH"; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      A     #ComSRC; 
+      A     "C01ComD".SRC.WfEm; 
+      O     "SFM04D"; 
+      =     #xTmp; 
+
+      A     #xTmp; 
+      AN    "SOPFC"; 
+      =     "SOPD"; 
+
+      A     #xTmp; 
+      JCN   N501; 
+      L     #U.Seq.Step; 
+      L     1; // Return to Production
+      -I    ; 
+      T     "SOStepNew"; 
+N501: NOP   0; 
+
+      A     #xTmp; 
+      A     "SFM04D"; // Delay Empty
+      JCN   N502; 
+      L     #U.Seq.Step; 
+      L     2; // Return to Filling
+      -I    ; 
+      T     "SOStepNew"; 
+N502: NOP   0; 
+
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// subphase repeat function
+      A     #SubStepMax; 
+      JCN   Y8; 
+      L     1; 
+      T     "SOSubStepNew"; 
+Y8:   SET   ; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    A800; 
+      JU    COMM; // subphase  0:
+      JU    A801; // subphase  1: Waiting
+      JU    A802; // subphase  2: Active
+// ---------------------------------------------------------------------------
+A800: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+// subphase 1: Waiting
+A801: SET   ; 
+      A     "SOSPA"; 
+      R     "C01ComD".Own.Emti; 
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      A     #reqAnlage; 
+      AN    "C01SpiD".LABOR_FREIG_T13.Sig; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 2: Active
+A802: SET   ; 
+      A     "SOSPA"; 
+      =     "C01ComD".Own.Emti; 
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+// Emptying -------------
+      CLR   ; 
+      =     "C01ComD".Own.Emti; 
+//KEG
+      A     "U043ComD".Own.Fill; 
+      A     #ComU043; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act3.ACo; 
+
+      A     "C01ActD".Act3.ACo; 
+      A     "C01ActD".Act3.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A3rn; 
+      L     #ComLine; 
+      L     1; 
+      OW    ; 
+      T     #ComLine; 
+A3rn: NOP   0; 
+//A5
+      A     "U045ComD".Own.Fill; 
+      A     #ComU045; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A5.ACo; 
+
+      A     "C01ActD".T13_A5.ACo; 
+      A     "C01ActD".T13_A5.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A5rn; 
+      L     #ComLine; 
+      L     2; 
+      OW    ; 
+      T     #ComLine; 
+A5rn: NOP   0; 
+
+//A7
+      A     "U047ComD".Own.Fill; 
+      A     #ComU047; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A7.ACo; 
+
+      A     "C01ActD".T13_A7.ACo; 
+      A     "C01ActD".T13_A7.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A7rn; 
+      L     #ComLine; 
+      L     4; 
+      OW    ; 
+      T     #ComLine; 
+A7rn: NOP   0; 
+
+//A9
+      A     "U049ComD".Own.Fill; 
+      A     #ComU049; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A9.ACo; 
+
+      A     "C01ActD".T13_A9.ACo; 
+      A     "C01ActD".T13_A9.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   A9rn; 
+      L     #ComLine; 
+      L     8; 
+      OW    ; 
+      T     #ComLine; 
+A9rn: NOP   0; 
+
+//A10
+      A     "U050ComD".Own.Fill; 
+      A     #ComU050; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A10.ACo; 
+
+      A     "C01ActD".T13_A10.ACo; 
+      A     "C01ActD".T13_A10.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AArn; 
+      L     #ComLine; 
+      L     16; 
+      OW    ; 
+      T     #ComLine; 
+AArn: NOP   0; 
+
+//A11
+      A     "U051ComD".Own.Fill; 
+      A     #ComU051; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A11.ACo; 
+
+      A     "C01ActD".T13_A11.ACo; 
+      A     "C01ActD".T13_A11.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   ABrn; 
+      L     #ComLine; 
+      L     32; 
+      OW    ; 
+      T     #ComLine; 
+ABrn: NOP   0; 
+
+//A12
+      A     "U052ComD".Own.Fill; 
+      A     #ComU052; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A12.ACo; 
+
+      A     "C01ActD".T13_A12.ACo; 
+      A     "C01ActD".T13_A12.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   ACrn; 
+      L     #ComLine; 
+      L     64; 
+      OW    ; 
+      T     #ComLine; 
+ACrn: NOP   0; 
+
+//A14
+      A     "U054ComD".Own.Fill; 
+      A     #ComU054; 
+      A     "SOSPH"; 
+      =     "C01ActD".T13_A14.ACo; 
+
+      A     "C01ActD".T13_A14.ACo; 
+      A     "C01ActD".T13_A14.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AFrn; 
+      L     #ComLine; 
+      L     128; 
+      OW    ; 
+      T     #ComLine; 
+AFrn: NOP   0; 
+
+//Frischwasser
+      A     "U056ComD".Own.Fill; 
+      A     #ComU056; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act1.ACo; 
+
+      A     "C01ActD".Act1.ACo; 
+      A     "C01ActD".Act1.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AXrn; 
+      L     #ComLine; 
+      L     256; 
+      OW    ; 
+      T     #ComLine; 
+AXrn: NOP   0; 
+
+//Brauhaus
+      A     "U057ComD".Own.Fill; 
+      A     #ComU057; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act2.ACo; 
+
+      A     "C01ActD".Act2.ACo; 
+      A     "C01ActD".Act2.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AYrn; 
+      L     #ComLine; 
+      L     512; 
+      OW    ; 
+      T     #ComLine; 
+AYrn: NOP   0; 
+//Sirupraum
+      A     "U058ComD".Own.Fill; 
+      A     #ComU058; 
+      A     "SOSPH"; 
+      =     "C01ActD".Act4.ACo; 
+
+      A     "C01ActD".Act4.ACo; 
+      A     "C01ActD".Act4.VOn; 
+      S     "C01ComD".Own.Emti; 
+      JCN   AZrn; 
+      L     #ComLine; 
+      L     1024; 
+      OW    ; 
+      T     #ComLine; 
+AZrn: NOP   0; 
+
+
+// -------------------------------------------------
+// subphase transition 
+      AN    #reqAnlage; 
+      =     "SOSPD"; 
+      JU    COMM; 
+NETWORK
+TITLE =phase 20: Quality Check 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 39 : Q-Status                            Enumeration     min
+X20:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: Q-Status
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[39].Sp,
+           Indexes                  := #S2I.SFM39);
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+      A     "SOPH"; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      A     #SubStepMaxD; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    C000; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+C000: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 21: Prepare Tank 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 17 : Level                               Value           l
+X21:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+
+      CLR   ; 
+      =     "C01SpiD".RM_NI_T13_K2.SCP; // Filling Hand Valve
+      =     "C01SpiD".RM_NI_T13_K3.SCP; // CIP Hand Valve
+
+      A     "SOPH"; 
+      =     "C01SpiD".RM_NI_T13_K2.SCS; // Filling Hand Valve
+      =     "C01SpiD".RM_NI_T13_K3.SCS; // CIP Hand Valve
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      AN    "C01SpiD".RM_NI_T13_K2.Sig; // Filling Hand Valve
+      AN    "C01SpiD".RM_NI_T13_K3.Sig; // CIP Hand Valve
+      AN    "SOPFC"; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    C100; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+C100: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 23: Connect Tank 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+X23:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 3,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+      A     "SOPH"; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      A     #SubStepMaxD; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    C300; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+C300: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 31: CIP Start 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+X31:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+// ---------------------------------------------------------------------------
+// pause timer
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      A     #SubStepMaxD; 
+      =     "SOPD"; 
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// subphase repeat function
+//      A     #SubStepMax
+//      JCN  Y31
+//      L     1
+//      T     "SOSubStepNew"
+//Y31:  SET
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D100; 
+      JU    COMM; // subphase  0:
+      JU    D101; // subphase  1: Wait For CIP
+      JU    D102; // subphase  2: Wait For Partner
+// ---------------------------------------------------------------------------
+D100: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+// subphase 1: Wait For CIP
+D101: SET   ; 
+
+// -------------------------------------------------
+// CIP Signals ---
+// Start Signal
+      A     "SORun"; 
+      A     "SOSPH"; 
+      =     "C01ComD".ToCIP.Bit36; 
+      JCN   CIPS; 
+      L     "SOPrId"; 
+      T     "ToCIP".ReqCIP1; 
+      T     "ToCIP".ReqCIPD1; 
+CIPS: NOP   0; 
+
+// -------------------------------------------------
+// subphase actuator 
+
+// -------------------------------------------------
+// subphase transition 
+// CIP Ready
+      A     #ComCIP; 
+      A     "C01ComD".CIP.Bit29; 
+      A     "C01ComD".CIP.Run; 
+// CIP Distribution Ready 
+      A     #ComCIPDist; 
+      A     "U094ComD".Own.Bit29; 
+      A     "U094ComD".Own.Run; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 2: Wait For Partner
+D102: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      CLR   ; 
+      =     "SOSPD"; 
+      JU    COMM; 
+NETWORK
+TITLE =phase 32: CIP Prerun 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 01 : Step Time                           Duration        min
+// 04 : Delay Level                         Duration        s
+// 15 : Amount                              Value           m3
+// 17 : Level                               Value           l
+// 22 : Agitator Speed                      Value           %
+// 27 : CIP Prerun                          Enumeration     min
+// 28 : CIP Return                          Enumeration     min
+// 29 : CIP Pump Speed                      Value           %
+// 34 : CIP Prerun Flow                     Value           m3/h
+// 35 : CIP Prerun Pressure                 Value           bar
+// 37 : CIP Pump Mode                       Enumeration     min
+X32:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Prerun
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[27].Sp,
+           Indexes                  := #S2I.SFM27);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Return
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[28].Sp,
+           Indexes                  := #S2I.SFM28);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Pump Mode
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[37].Sp,
+           Indexes                  := #S2I.SFM37);
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// CIP Unit
+      AN    #ComCIP; 
+      ON    "C01ComD".CIP.Bit28; 
+      ON    "C01ComD".CIP.Bit29; 
+      JCN   x321; 
+      R     #RRel; 
+      L     949; // CIP Not Ready!
+      T     "SOMessage"; 
+x321: NOP   0; 
+
+// CIP Distribution Unit
+      AN    #ComCIPDist; 
+      ON    "U094ComD".Own.Bit28; 
+      ON    "U094ComD".Own.Bit29; 
+      JCN   x322; 
+      R     #RRel; 
+      L     949; // CIP Partner Not Ready!
+      T     "SOMessage"; 
+x322: NOP   0; 
+
+// CIP Signals ---
+      L     #U.Seq.SFM[17].Sp; 
+      L     0.000000e+000; 
+      <=R   ; 
+      O     "SFM17D"; 
+      =     #xTmp; 
+      CALL "CIPUnitC" (
+           StepOnSFMSP              := #U.Seq.SFM[26].Sp,
+           EmptySig                 := "C01SpiD".LS_LLL_T13.Sig,
+           EmptyLevel               := #xTmp,
+           CIPPumpRun               := "C01ComD".CIP.Bit35,
+           CIPReady                 := "C01ComD".CIP.Bit29,
+           Empty                    := "C01ComD".Own.Emty,
+           TransCondOK              := "SOPD",
+           RRel                     := #RRel);
+
+// ---------------------------------------------------------------------------
+// timer & counter 
+// Done in "CIPUnitC"
+
+// ---------------------------------------------------------------------------
+// communication
+// Active, Prerun & Return
+      A     "SOPA"; 
+      =     "C01ComD".ToCIP.Bit28; 
+      =     "C01ComD".ToCIP.Bit38; 
+      =     "C01ComD".ToCIP.Bit39; 
+
+// Run Release
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit29; 
+
+// Prerun Pump
+      A     "C01ComD".ToCIP.Bit38; 
+      AN    #S2I.SFM37.I00; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit43; 
+
+// Return Pump
+      AN    "C01ComD".Own.Emty; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit44; 
+
+// ---------------------------------------------------------------------------
+// control modules (Own CM's) 
+      A     "SOPA"; 
+      =     "C01ActD".RV1_T13.ACo; 
+      =     "C01ActD".VVT13.ACo; 
+
+      A     "SOPH"; 
+      =     "C01ActD".T13_RR1.ACo; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+//      A     #SubStepMaxD
+//      =     "SOPD"
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D200; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+D200: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 33: CIP Return 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 01 : Step Time                           Duration        min
+// 04 : Delay Level                         Duration        s
+// 06 : Delay Switchpoint                   Duration        s
+// 15 : Amount                              Value           m3
+// 17 : Level                               Value           l
+// 22 : Agitator Speed                      Value           %
+// 26 : CIP Step On Condition               Enumeration     min
+// 27 : CIP Prerun                          Enumeration     min
+// 28 : CIP Return                          Enumeration     min
+// 29 : CIP Pump Speed                      Value           %
+// 30 : CIP Return Temperature              Value           °C
+// 32 : CIP Return Conductivity             Value           mS
+// 34 : CIP Prerun Flow                     Value           m3/h
+// 35 : CIP Prerun Pressure                 Value           bar
+// 37 : CIP Pump Mode                       Enumeration     min
+X33:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Step On Condition
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[26].Sp,
+           Indexes                  := #S2I.SFM26);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Prerun
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[27].Sp,
+           Indexes                  := #S2I.SFM27);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Return
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[28].Sp,
+           Indexes                  := #S2I.SFM28);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Pump Mode
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[37].Sp,
+           Indexes                  := #S2I.SFM37);
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// CIP Unit
+      AN    #ComCIP; 
+      ON    "C01ComD".CIP.Bit28; 
+      ON    "C01ComD".CIP.Bit29; 
+      JCN   x331; 
+      R     #RRel; 
+      L     949; // CIP Not Ready!
+      T     "SOMessage"; 
+x331: NOP   0; 
+
+// CIP Distribution Unit
+      AN    #ComCIPDist; 
+      ON    "U094ComD".Own.Bit28; 
+      ON    "U094ComD".Own.Bit29; 
+      JCN   x332; 
+      R     #RRel; 
+      L     949; // CIP Partner Not Ready!
+      T     "SOMessage"; 
+x332: NOP   0; 
+
+// CIP Signals ---
+      L     #U.Seq.SFM[17].Sp; 
+      L     0.000000e+000; 
+      <=R   ; 
+      O     "SFM17D"; 
+      =     #xTmp; 
+
+      CALL "CIPUnitC" (
+           StepOnSFMSP              := #U.Seq.SFM[26].Sp,
+           EmptySig                 := "C01SpiD".LS_LLL_T13.Sig,
+           EmptyLevel               := #xTmp,
+           CIPPumpRun               := "C01ComD".CIP.Bit35,
+           CIPReady                 := "C01ComD".CIP.Bit29,
+           Empty                    := #Empty,
+           TransCondOK              := "SOPD",
+           RRel                     := #RRel);
+
+// ---------------------------------------------------------------------------
+// timer & counter 
+// Done in "CIPUnitC"
+
+// ---------------------------------------------------------------------------
+// communication
+// Active, Prerun & Return
+      A     "SOPA"; 
+      =     "C01ComD".ToCIP.Bit28; 
+      =     "C01ComD".ToCIP.Bit38; 
+      =     "C01ComD".ToCIP.Bit39; 
+
+// Run Release
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit29; 
+
+// Prerun Pump
+      A     "C01ComD".ToCIP.Bit38; 
+      AN    #S2I.SFM37.I00; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit43; 
+
+// Return Pump
+      AN    #Empty; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit44; 
+
+// Bypass Valve
+      A     "SOPH"; 
+      =     "C01ComD".ToCIP.Bit45; 
+
+// ---------------------------------------------------------------------------
+// control modules (Own CM's) 
+      A     "SOPA"; 
+      =     "C01ActD".VVT13.ACo; 
+
+// Bypass Valve Used in CIP Distribution
+//      A     "SOPA"
+//      =     "C01ActD".RV1_T13.ACo
+
+//      A     "SOPH"
+//      =     "C01ActD".T13_RR1.ACo
+
+// ---------------------------------------------------------------------------
+// transition condition 
+//      A     #SubStepMaxD
+//      =     "SOPD"
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D300; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+D300: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 34: CIP Rinsing 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 01 : Step Time                           Duration        min
+// 04 : Delay Level                         Duration        s
+// 05 : Substep Time                        Duration        s
+// 06 : Delay Switchpoint                   Duration        s
+// 15 : Amount                              Value           m3
+// 17 : Level                               Value           l
+// 22 : Agitator Speed                      Value           %
+// 27 : CIP Prerun                          Enumeration     min
+// 28 : CIP Return                          Enumeration     min
+// 29 : CIP Pump Speed                      Value           %
+// 30 : CIP Return Temperature              Value           °C
+// 32 : CIP Return Conductivity             Value           mS
+// 34 : CIP Prerun Flow                     Value           m3/h
+// 35 : CIP Prerun Pressure                 Value           bar
+// 37 : CIP Pump Mode                       Enumeration     min
+// 59 : Interval Counter                    Value           No.
+X34:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Prerun
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[27].Sp,
+           Indexes                  := #S2I.SFM27);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Return
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[28].Sp,
+           Indexes                  := #S2I.SFM28);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Pump Mode
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[37].Sp,
+           Indexes                  := #S2I.SFM37);
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// CIP Unit
+      AN    #ComCIP; 
+      ON    "C01ComD".CIP.Bit28; 
+      ON    "C01ComD".CIP.Bit29; 
+      JCN   x341; 
+      R     #RRel; 
+      L     949; // CIP Not Ready!
+      T     "SOMessage"; 
+x341: NOP   0; 
+
+// CIP Distribution Unit
+      AN    #ComCIPDist; 
+      ON    "U094ComD".Own.Bit28; 
+      ON    "U094ComD".Own.Bit29; 
+      JCN   x342; 
+      R     #RRel; 
+      L     949; // CIP Partner Not Ready!
+      T     "SOMessage"; 
+x342: NOP   0; 
+
+// CIP Signals ---
+      L     #U.Seq.SFM[17].Sp; 
+      L     0.000000e+000; 
+      <=R   ; 
+      O     "SFM17D"; 
+      =     #xTmp; 
+
+      CALL "CIPUnitC" (
+           StepOnSFMSP              := #U.Seq.SFM[26].Sp,
+           EmptySig                 := "C01SpiD".LS_LLL_T13.Sig,
+           EmptyLevel               := #xTmp,
+           CIPPumpRun               := "C01ComD".CIP.Bit35,
+           CIPReady                 := "C01ComD".CIP.Bit29,
+           Empty                    := "C01ComD".Own.Emty,
+           TransCondOK              := "SOPD",
+           RRel                     := #RRel);
+
+// ---------------------------------------------------------------------------
+// timer & counter 
+// Done in "CIPUnitC"
+
+// ---------------------------------------------------------------------------
+// communication
+// Active, Prerun & Return
+      A     "SOPA"; 
+      =     "C01ComD".ToCIP.Bit28; 
+      =     "C01ComD".ToCIP.Bit38; 
+      =     "C01ComD".ToCIP.Bit39; 
+
+// Run Release
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit29; 
+
+// Prerun Pump
+      A     "C01ComD".ToCIP.Bit38; 
+      AN    #S2I.SFM37.I00; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit43; 
+
+// Return Pump
+      AN    "C01ComD".Own.Emty; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit44; 
+
+// ---------------------------------------------------------------------------
+// control modules (Own CM's) 
+      A     "SOPA"; 
+      =     "C01ActD".RV1_T13.ACo; 
+      =     "C01ActD".VVT13.ACo; 
+
+      A     "SOPH"; 
+      =     "C01ActD".T13_RR1.ACo; 
+
+// ---------------------------------------------------------------------------
+// transition condition (Check CIPUnitC)
+//      A     #SubStepMaxD
+//      =     "SOPD"
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// subphase repeat function
+      A     #SubStepMax; 
+      JCN   Y34; 
+      L     1; 
+      T     "SOSubStepNew"; 
+Y34:  NOP   0; 
+
+      A     #SubStepMax; 
+      AN    "SOSPA"; 
+      JCN   Y34a; 
+      L     #U.Seq.SFM[59].Val; // Increment Interval Counter
+      L     1.000000e+000; 
+      +R    ; 
+      T     #U.Seq.SFM[59].Val; 
+Y34a: SET   ; 
+      A     "SOPFC"; 
+      ON    "SOPA"; 
+      JCN   IntR; // Reset Interval Counter at Start and End Of Phase
+      L     0.000000e+000; 
+      T     #U.Seq.SFM[59].Val; 
+IntR: NOP   0; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D400; 
+      JU    COMM; // subphase  0:
+      JU    D401; // subphase  1: Pause
+      JU    D402; // subphase  2: Main
+      JU    D403; // subphase  3: Expulse
+      JU    D404; // subphase  4: Seat Lift
+      JU    D400; // subphase  5:
+      JU    D406; // subphase  6: Shaft Rinse
+      JU    D407; // subphase  7: Drain
+// ---------------------------------------------------------------------------
+D400: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+// subphase 1: Pause
+D401: SET   ; 
+      A     "SOSPA"; 
+      R     "C01ComD".ToCIP.Bit43; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+      =     "SFM05S"; // Substep Time
+
+// -------------------------------------------------
+// subphase actuator 
+
+// -------------------------------------------------
+// subphase transition 
+      A     "SFM04D"; // Delay Level
+      A     "SFM04S"; 
+      O     "SFM05D"; // Substep Time Done
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 2: Main
+D402: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+      =     "SFM05S"; // Substep Time
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      A     "SFM05D"; // Substep Time Done   
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 3: Expulse
+D403: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      CLR   ; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 4: Seat Lift
+D404: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      CLR   ; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 6: Shaft Rinse
+D406: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      CLR   ; 
+      =     "SOSPD"; 
+      JU    COMM; 
+
+// subphase 7: Drain
+D407: SET   ; 
+
+// -------------------------------------------------
+// subphase timer & counter
+      A     "SOSPA"; 
+
+// -------------------------------------------------
+// subphase actuator 
+      A     "SOSPH"; 
+
+// -------------------------------------------------
+// subphase transition 
+      CLR   ; 
+      =     "SOSPD"; 
+      JU    COMM; 
+NETWORK
+TITLE =phase 35: CIP Emptying 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+// 04 : Delay Empty                         Duration        s
+// 17 : Level                               Value           l
+// 22 : Agitator Speed                      Value           %
+// 26 : Step On Empty                       Enumeration     min
+// 28 : CIP Return                          Enumeration     min
+X35:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// index evaluation: Step On Empty
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[26].Sp,
+           Indexes                  := #S2I.SFM26);
+
+// ---------------------------------------------------------------------------
+// index evaluation: CIP Return
+      CALL "S2I" (
+           SFM                      := #U.Seq.SFM[28].Sp,
+           Indexes                  := #S2I.SFM28);
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// CIP Unit
+      AN    #ComCIP; 
+      ON    "C01ComD".CIP.Bit28; 
+      ON    "C01ComD".CIP.Bit29; 
+      JCN   x351; 
+      R     #RRel; 
+      L     949; // CIP Not Ready!
+      T     "SOMessage"; 
+x351: NOP   0; 
+
+// CIP Distribution Unit
+      AN    #ComCIPDist; 
+      ON    "U094ComD".Own.Bit28; 
+      ON    "U094ComD".Own.Bit29; 
+      JCN   x352; 
+      R     #RRel; 
+      L     949; // CIP Partner Not Ready!
+      T     "SOMessage"; 
+x352: NOP   0; 
+
+// CIP Signals ---
+      CALL "CIPUnitC" (
+           StepOnSFMSP              := #U.Seq.SFM[26].Sp,
+           EmptySig                 := "C01SpiD".LS_LLL_T13.Sig,
+           EmptyLevel               := "SFM17D",
+           CIPPumpRun               := "C01ComD".CIP.Bit35,
+           CIPReady                 := "C01ComD".CIP.Bit29,
+           Empty                    := "C01ComD".Own.Emty,
+           TransCondOK              := "SOPD",
+           RRel                     := #RRel);
+
+// ---------------------------------------------------------------------------
+// timer & counter 
+// Done in "CIPUnitC"
+
+// ---------------------------------------------------------------------------
+// communication
+// Active, Prerun & Return
+      A     "SOPA"; 
+      =     "C01ComD".ToCIP.Bit28; 
+      =     "C01ComD".ToCIP.Bit39; 
+
+// Run Release
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit29; 
+
+// Prerun Pump
+      A     "C01ComD".ToCIP.Bit38; 
+      AN    #S2I.SFM37.I00; 
+      A     #RRel; 
+      CLR   ; 
+      =     "C01ComD".ToCIP.Bit43; 
+
+// Return Pump
+      AN    "C01ComD".Own.Emty; 
+      A     #RRel; 
+      =     "C01ComD".ToCIP.Bit44; 
+
+// ---------------------------------------------------------------------------
+// control modules (Own CM's) 
+      A     "SOPA"; 
+      =     "C01ActD".RV1_T13.ACo; 
+      =     "C01ActD".VVT13.ACo; 
+
+      A     "SOPH"; 
+      =     "C01ActD".T13_RR1.ACo; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+//      A     #SubStepMaxD
+//      =     "SOPD"
+
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D500; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+D500: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 36: CIP Drain 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        Min
+// 04 : Delay Empty                         Duration        #sec
+X36:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+
+// ---------------------------------------------------------------------------
+// general functions 
+      AN    "SOSTAl"; 
+      A     "SOPH"; 
+      =     #RRel; 
+
+// ---------------------------------------------------------------------------
+// messages 
+// ---------------------------------------------------------------------------
+// timer & counter 
+      A     "SOPA"; 
+
+// ---------------------------------------------------------------------------
+// pause timer
+      ON    "SOPH"; 
+      O     "SFM04D"; 
+      S     "SFM04P"; // Delay Empty
+
+// ---------------------------------------------------------------------------
+// communication
+
+// ---------------------------------------------------------------------------
+// control modules 
+      A     "SOPH"; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      A     #SubStepMaxD; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    D600; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+D600: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+NETWORK
+TITLE =phase 40: CIP End 
+//SFM   Use                                 Datatype        UoM
+//----+-------------------------------------------------------------------------
+// 00 : Watch Dog Time                      Duration        min
+X40:  SET   ; 
+// ---------------------------------------------------------------------------
+// General CM evaluation
+      CALL "C01Start" (
+           ChkType                  := 4,
+           ChkOK                    := #ChkOK);
+
+      AN    #ChkOK; 
+      S     "SOHoldReq"; 
+// ---------------------------------------------------------------------------
+// general functions 
+//      AN    "SOSTAl"
+      A     "SOPH"; 
+      =     #RRel; 
+
+// CIP Signals ---
+      CALL "CIPUnitC" (
+           StepOnSFMSP              := 0.000000e+000,
+           EmptySig                 := FALSE,
+           EmptyLevel               := FALSE,
+           CIPPumpRun               := FALSE,
+           CIPReady                 := FALSE,
+           Empty                    := #xTmp,
+           TransCondOK              := #xTmp,
+           RRel                     := #RRel);
+
+// ---------------------------------------------------------------------------
+// communication
+      A     "SOPA"; 
+      =     "C01ComD".ToCIP.Bit47; 
+
+// ---------------------------------------------------------------------------
+// transition condition 
+      AN    #ComCIP; 
+      AN    #ComCIPDist; 
+      =     "SOPD"; 
+
+// subphase evaluation
+      L     "SOSubPhase"; 
+      JL    E000; 
+      JU    COMM; // subphase  0:
+// ---------------------------------------------------------------------------
+E000: SET   ; 
+      S     "SOSPNE"; // Error unknown subphase
+      JU    COMM; 
+
+NETWORK
+TITLE =End Of Sequence Organisation
+
+COMM: SET   ; 
+
+// ---------------------------------------------------------------------------
+// pause timer unit parameter
+      ON    "SOPH"; 
+      O     "SFM09D"; 
+      S     "SFM09P"; // Process Time
+
+// Laborfreigabe 
+      A     "C01SpiD".LABOR_FREIG_T13.Sig; 
+      AN    #CIP; 
+      O     "C01SpiD".LS_LLL_T13.Sig; 
+      R     "C01ComD".Own.WfEm; 
+      R     "C01ComD".Own.Emti; 
+
+      AN    "C01SpiD".LS_HL_T13.Sig; 
+      R     "C01ComD".Own.WfFi; 
+      R     "C01ComD".Own.Fill; 
+
+// Line Communication
+      L     #ComLine; 
+      T     "C01ComD".Own.Real06; 
+
+NETWORK
+TITLE =General Post Phase Controls
+
+      NOP   0; 
+
+// ---------------------------------------------------------------------------
+// general postphase controls  
+// Inlet Control
+      L     "C01ComD".SRC.UnitNo; 
+      L     29; // B6F 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".B6F_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     30; // H6 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".H6F_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     31; // J6 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".J6F_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     32; // L6F
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".L6F_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     34; // D6
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".D6_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     33; // B6
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".B6_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     25; // A 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".A_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     26; // B 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".B_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     27; //CF 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".CF_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     28; // C1 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".Act25.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     21; // VE1 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".RW6_T13.ACo; 
+
+      L     "C01ComD".SRC.UnitNo; 
+      L     22; // VE2 
+      ==I   ; 
+      A     #ReqInlet; 
+      =     "C01ActD".RW5_T13.ACo; 
+
+      A     "C01ActD".B6F_T13.VOn; 
+      O     "C01ActD".H6F_T13.VOn; 
+      O     "C01ActD".J6F_T13.VOn; 
+      O     "C01ActD".L6F_T13.VOn; 
+      O     "C01ActD".D6_T13.VOn; 
+      O     "C01ActD".B6_T13.VOn; 
+      O     "C01ActD".A_T13.VOn; 
+      O     "C01ActD".B_T13.VOn; 
+      O     "C01ActD".CF_T13.VOn; 
+      O     "C01ActD".Act25.VOn; 
+      O     "C01ActD".RW5_T13.VOn; 
+      O     "C01ActD".RW6_T13.VOn; 
+      =     #U.Seq.User.Bit2; 
+
+NETWORK
+TITLE =Process Status Management
+
+      NOP   0; 
+// ---------------------------------------------------------------------------
+// Signal Control
+      OPN   "PStatD"; 
+      L     #UnitNo; 
+      L     32; //U Structure Length
+      *I    ; 
+      L     20; //DB Heading Offset
+      +I    ; 
+      SLD   3; 
+      LAR2  ; 
+
+// -------------------------------------------------
+// Maintenance
+      A     #U.Seq.Switch.Sw31; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#0.0]; //"PStatD".U[#UnitNo].MTNC
+// -------------------------------------------------
+// CIP Required
+// -------------------------------------------------
+// CIP Active
+// -------------------------------------------------
+// CIP Clean
+// -------------------------------------------------
+// SIP Required
+// -------------------------------------------------
+// SIP Active
+// -------------------------------------------------
+// SIP Clean
+// -------------------------------------------------
+// Full
+      A     "C01ComD".Own.Full; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#0.7]; //"PStatD".U[#UnitNo].FULL
+// -------------------------------------------------
+// Filling
+      A     "C01ComD".Own.Fill; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#1.0]; //"PStatD".U[#UnitNo].FILL   
+// -------------------------------------------------
+// Ready For Filling
+      A     "C01ComD".Own.WfFi; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#1.1]; //"PStatD".U[#UnitNo].RFFI 
+// -------------------------------------------------
+// Empty
+      A     "C01ComD".Own.Emty; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#1.2]; //"PStatD".U[#UnitNo].EMTY 
+// -------------------------------------------------
+// Emptying
+      A     "C01ComD".Own.Emti; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#1.3]; //"PStatD".U[#UnitNo].EMTI
+// -------------------------------------------------
+// Ready For Emptying
+      A     "C01ComD".Own.WfEm; 
+      OPN   "PStatD"; 
+      =     DBX [AR2,P#1.4]; //"PStatD".U[#UnitNo].RFEM
+// -------------------------------------------------
+// Reserved
+//      A     #ComXYZ
+//      OPN   "PStatD"
+//      =     DBX [AR2,P#1.5]             //"PStatD".U[#UnitNo].RESV
+// -------------------------------------------------
+// Production
+// -------------------------------------------------
+// Used
+
+// -------------------------------------------------
+// PStat Function Call 
+
+      CALL "PStat" (
+           UnitNo                   := #UnitNo,
+           PStatModVal              := "C01UnVD".unv001.ValExt);
+
+
+NETWORK
+TITLE =Unit Hold Request and Messages
+
+      SET   ; 
+
+// ---------------------------------------------------------------------------
+// Set unit to "hold" if maintenance
+      AN    #U.Seq.Switch.Sw31; // maintenance !
+      JC    NCO1; 
+      S     "SOHoldReq"; 
+      L     998; // "Unit in maintenance !"
+      T     "SOMessage"; 
+
+// ---------------------------------------------------------------------------
+// Set unit to "hold" if emergency stop
+NCO1: A     #EStopOK; 
+      JC    NCO2; 
+      S     "SOHoldReq"; 
+      L     999; // "Emergency stop !"
+      T     "SOMessage"; 
+NCO2: NOP   0; 
+
+END_FUNCTION_BLOCK
+

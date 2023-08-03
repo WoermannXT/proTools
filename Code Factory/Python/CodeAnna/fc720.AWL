@@ -1,0 +1,216 @@
+FUNCTION "CIPTankCIPC" : VOID
+TITLE =CIP Tank CIP Control
+AUTHOR : Woermann
+NAME : CIPUnitC
+VERSION : 0.1
+
+
+VAR_INPUT
+  TankNo : REAL ;	
+  CIP1preSP : REAL ;	//CIP Line 1 Prerun Selection
+  CIP2preSP : REAL ;	//CIP Line 2 Prerun Selection
+  CIP3preSP : REAL ;	//CIP Line 3 Prerun Selection
+  CIP1retSP : REAL ;	//CIP Line 1 Return Selection
+  CIP2retSP : REAL ;	//CIP Line 2 Return Selection
+  CIP3retSP : REAL ;	//CIP Line 3 Return Selection
+  CIP1Vol : REAL ;	//CIP Line 1 Total Volume
+  CIP2Vol : REAL ;	//CIP Line 2 Total Volume
+  CIP3Vol : REAL ;	//CIP Line 3 Total Volume
+  Full : BOOL ;	//True when full (takes away release)
+  Empty : BOOL ;	//True when empty (takes away release)
+END_VAR
+VAR_OUTPUT
+  InletACo : BOOL ;	//Inlet Valve ACo
+  OutletACo : BOOL ;	//Outlet Valve ACo
+  Active : BOOL ;	//This Tank is active (goto Active Step)
+  CIPTotVol : REAL ;	//CIP Total Volume Value
+END_VAR
+VAR_IN_OUT
+  CIP1RelPre : BOOL ;	//CIP Line 1 Release Prerun
+  CIP2RelPre : BOOL ;	//CIP Line 2 Release Prerun
+  CIP3RelPre : BOOL ;	//CIP Line 3 Release Prerun
+  CIPRelRet : BOOL ;	//CIP Line (all) Release Return
+END_VAR
+VAR_TEMP
+  ComCIP1Prerun : BOOL ;	//Com With Unit CIP1 Prerun
+  ComCIP2Prerun : BOOL ;	//Com With Unit CIP2 Prerun
+  ComCIP3Prerun : BOOL ;	//Com With Unit CIP3 Prerun
+  ComCIP1Return : BOOL ;	//Com With Unit CIP1 Return
+  ComCIP2Return : BOOL ;	//Com With Unit CIP2 Return
+  ComCIP3Return : BOOL ;	//Com With Unit CIP3 Return
+  PreRunSel : BOOL ;	//Selected As Prerun Tank
+  ReturnSel : BOOL ;	//Selectad As Return Tank
+  RRel : BOOL ;	//Run Release
+  xTmp : BOOL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =1Com With Unit CIP Prerun
+
+      CLR   ; 
+      =     #Active; 
+
+// Prerun
+      L     #CIP1preSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP1Prerun; 
+
+      L     #CIP2preSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP2Prerun; 
+
+      L     #CIP3preSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP3Prerun; 
+
+      A     #ComCIP1Prerun; 
+      O     #ComCIP2Prerun; 
+      O     #ComCIP3Prerun; 
+      =     #PreRunSel; 
+// Return
+      L     #CIP1retSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP1Return; 
+
+      L     #CIP2retSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP2Return; 
+
+      L     #CIP3retSP; 
+      L     #TankNo; 
+      ==R   ; 
+      =     #ComCIP3Return; 
+
+      A     #ComCIP1Return; 
+      O     #ComCIP2Return; 
+      O     #ComCIP3Return; 
+      =     #ReturnSel; 
+
+// Active
+      A     #PreRunSel; 
+      O     #ReturnSel; 
+      =     #Active; 
+
+// CKLEHLPREVA SpI 002 Vollmeldung Tank B5 prevafoam
+      CALL "SI1" (
+           UnitNo                   := #UnitNo,
+           SpIRec                   := U009SpID.CKLEHLPREVA,
+           SpIBit                   := I16.7);
+
+NETWORK
+TITLE =2This is just another Test Network ----------------------------------------
+      A     "SOPH"; 
+      =     #RRel; 
+
+// -----------------------------------------------------------
+// Release CIP Return
+      A     #ReturnSel; 
+      A     "SOPH"; 
+      =     #InletACo; 
+
+NETWORK
+TITLE =3Run Release
+
+COMM: A     "SOPH"; // abc
+      =     #RRel; 
+
+// -----------------------------------------------------------
+// Release CIP Return
+      A     #ReturnSel; 
+      A     "SOPH"; 
+      =     #InletACo; 
+
+      AN    #Full; 
+      A     #RRel; 
+      =     #CIPRelRet; 
+
+// -----------------------------------------------------------
+// Release CIP Prerun
+      A     #ComCIP1Prerun; 
+      O     #ComCIP2Prerun; 
+      O     #ComCIP3Prerun; 
+      A     "SOPH"; 
+      =     #OutletACo; 
+
+///      AN    "SFM14D"          // Total Volume Function Not Used
+///      O     #CIP1RelPre
+      AN    #Empty; 
+      A     #ComCIP1Prerun; 
+      A     "SOPH"; 
+      =     #CIP1RelPre; 
+
+///      AN    "SFM14D"          // Total Volume Function Not Used
+///      O     #CIP2RelPre
+      AN    #Empty; 
+      A     #ComCIP2Prerun; 
+      A     "SOPH"; 
+      =     #CIP2RelPre; 
+
+///      AN    "SFM14D"           // Total Volume Function Not Used
+///      O     #CIP3RelPre
+      AN    #Empty; 
+      A     #ComCIP3Prerun; 
+      A     "SOPH"; 
+      =     #CIP3RelPre; 
+
+// -----------------------------------------------------------
+// Calculate CIP Total Volume Value
+      BEU   ; // Total Volume Function Not Used
+
+      L     0.000000e+000; 
+      A     #CIP1RelPre; 
+      JCN   C1pr; 
+      L     #CIP1Vol; 
+      +R    ; 
+C1pr: A     #CIP2RelPre; 
+      JCN   C2pr; // Jump to C2pr
+      L     #CIP2Vol; 
+      +R    ; 
+C2pr: A     #CIP3RelPre; 
+      JCN   C3pr; 
+      L     #CIP3Vol; 
+      +R    ; 
+C3pr: T     #CIPTotVol; 
+
+// -----------------------------------------------------------
+
+NETWORK
+TITLE =4messages 
+	NOP 0;
+// msg001 Msg 001 Order Level
+      CALL "Msg" (
+           UnitNo                   := #UnitNo,
+           MsGRec                   := U009MsgD.msg001,
+           MsGBit                   := U009MsgD.msg001.SigEx);
+
+// msg002 Msg 002 Message 02
+      CALL "Msg" (
+           UnitNo                   := #UnitNo,
+           MsGRec                   := U009MsgD.msg002,
+           MsGBit                   := U009MsgD.msg002.SigEx);
+
+NETWORK
+TITLE =5nit supply
+	UC FB [#UnitFB]
+NETWORK
+TITLE =6CKLAV5_4  V5.4 Injektorventil Hebergef�� prevafoam
+// Act 001
+// Box           : 8235 RDS Zentrale
+// Output address: Q23.5
+
+
+      CALL "Act" (
+           UnitNo                   := #UnitNo,
+           ActRec                   := U009ActD.CKLAV5_4,
+           Typ                      := 0,
+           FBa                      := #xTmp,
+           FBa2                     := #xTmp,
+           Out                      := Q23.5);
+
+END_FUNCTION
+

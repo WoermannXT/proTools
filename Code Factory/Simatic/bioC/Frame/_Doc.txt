@@ -11,13 +11,13 @@ Sig		Signal (Digital); SpI
 -AnO	Analog Output ???
 Val		Value Processing
 Set		Setpoint Processing
+Out		Output Processing
 PID		PID Controller
 VLT		VLT
 -Swi	> Signal
 
-Activity Management:
-DTS		Date Time Scheduler
-EVA		Event Activity Manager		
+Action Management:
+EVM		Event Manager		
 
 Sequence Management:
 Seq		Sequencer
@@ -25,9 +25,10 @@ Par		Parameter Manager
 Rec		Recipe Manager
 ...
 
-Batch Management:
-Prt		Batch Data Protocol
-Trf		Transfer Manager
+Data Collectors:
+NtC		Notice Collector
+PDC		Process Data Collector
+BDC		Batch Data Collector
 
 Functions:
 Map		Value Remapping (Rescaling)

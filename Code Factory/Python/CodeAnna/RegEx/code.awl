@@ -1,0 +1,62 @@
+[FB0]
+	[Gen]
+
+	[AnI]
+
+	[UnV]
+
+	[SpI]
+
+	[Cnt]
+
+	[PID]
+
+	[VLT]
+
+	[Seq]
+
+	[Act]
+
+
+[FB1]
+	[Gen]
+
+	[AnI]
+
+	[UnV]
+
+	[SpI]
+
+	[Cnt]
+
+	[PID]
+
+	[VLT]
+
+	[Seq]
+
+	[Auto]
+
+	[Act]
+
+
+[FC0]
+	[Check1]
+
+
+	[Check2]
+
+
+[FC1]
+	[PrePhase]
+
+
+	[Phase]
+
+
+	[SubPhase]
+
+
+	[PostPhase]
+
+

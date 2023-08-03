@@ -14,7 +14,7 @@ t {(tag)0-2}-{A-C}+[tag]
 	[t 0-A+0, t 0-B+0, t 0-C+0, t 1-A+1, t 1-B+1, t 1-C+1, t 2-A+2, t 2-B+2, t 2-C+2]
 
 ToDo:
-	+Tags to reuse a variable
+	+Tags to reuse a variable anywhere in the string
 		{(tag)0-2}-{A-C}+[tag]
 	-Escaping of special chars like {}(),-
 '''
@@ -28,7 +28,6 @@ rexp0 = re.compile(r"({(?:\((?P<tag>\w+)\))?(?P<grp_p>[^}]+)})") #find {(tag)?x}
 rexp1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 rexp2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z and A-Z
-
 
 def ArgsMan(args):
 	parser = argparse.ArgumentParser(description='Web The Ripper')
@@ -89,6 +88,3 @@ if __name__ == '__main__':
 		ArgsMan(argv)
 	except KeyboardInterrupt:
 		pass
-
-
-
