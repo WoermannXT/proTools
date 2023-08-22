@@ -30,7 +30,7 @@ def Worker(args):
 
 	print(jd1)
 	print(jd2)
-	jd = dctmrg(jd1, jd2)
+	jd = DctMrg(jd1, jd2)
 
 	print(dctcln(jd))
 
@@ -56,25 +56,33 @@ def dctcln(obj):
 
 #------------------------------------------------------------------------------------
 # Dict Merger -----------------------------------------------------------------------
-def dctmrg(dct='',dctnew=''):
-	if isinstance(dct, dict) and isinstance(dctnew, dict):
-		for key, val in dctnew.items():
-			if key in dct:
+def DctMrg(dct='',dctnew=''):
+	try:
+		d=dct.copy()
+	except:
+		d=dct
+	try:
+		d2=dctnew.copy()
+	except:
+		d2=dctnew
+	if isinstance(d, dict) and isinstance(d2, dict):
+		for key, val in d2.items():
+			if key in d:
 				if isinstance(val, dict):
-					dct[key] = dctmrg(dct[key], dctnew[key])
+					d[key] = DctMrg(d[key], d2[key])
 				else:
-					dct[key] = val
+					d[key] = val
 			else:
-				dct[key] = dctnew[key]
-		return dct
-	elif not isinstance(dct, dict) and isinstance(dctnew, dict):
-		print('-d1 not a Dictionary: ', dct)
-		return dctnew
-	elif not isinstance(dctnew, dict) and isinstance(dct, dict):
-		print('-d2 not a Dictionary: ', dctnew)
-		return dct
+				d[key] = d2[key]
+		return d
+	elif not isinstance(d, dict) and isinstance(d2, dict):
+		print('-d1 not a Dictionary: ', d)
+		return d2
+	elif not isinstance(d2, dict) and isinstance(d, dict):
+		print('-d2 not a Dictionary: ', d2)
+		return d
 	else:
-		return {}	
+		return {}
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -81,7 +81,7 @@ def getExif(img):
 		keys = [37121,50341,50898,50899,59932] #delete
 		for key in keys:
 			if key in exif: 
-				exif[key] = ''
+				exif.pop(key)
 				print("Key {key} deleted!".format(key = key))
 		# MakerNote 	37500 	0x927C 	ExifUndefined 	byte[]
 		# UserComment 	37510 	0x9286 	ExifEncodedString 	string
@@ -96,7 +96,6 @@ def getExif(img):
 					v = v.replace('\x00\x00','')
 				exif[key] = v
 	return dctcln(exif)
-	return exif
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
