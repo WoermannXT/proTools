@@ -81,12 +81,12 @@ TOnSp
 TOnV
 
 // Value Comparisson
-MAX	Maximum
+MaxMaximum
 HH	High High
 H	High
 L	Low  
 LL	Low Low 
-MIN Minimum
+Min Minimum
 
 MAXV	Maximum Value
 HHV	High High Value
