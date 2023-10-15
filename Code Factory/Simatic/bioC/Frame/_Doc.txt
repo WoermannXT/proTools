@@ -111,7 +111,8 @@ Avg		Average
 Cnt		Counter
 Sum		Sum
 Med		Median
-
+Min
+Max
 AvgCnt	Average Counter
 AvgSum	Avrage Sum
 
