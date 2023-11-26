@@ -81,28 +81,28 @@ TOnSp
 TOnV
 
 // Value Comparisson
-MAX	Maximum
+MaxMaximum
 HH	High High
 H	High
 L	Low  
 LL	Low Low 
-MIN Minimum
+Min Minimum
 
-MAXV	Maximum Value
+MaxV	Maximum Value
 HHV	High High Value
 HSc	High Scale
 HV	High Value
 LV	Low Value 
 LSc	Low Scale
 LLV	Low Low Value
-MINV	Minimum Value
+MinV	Minimum Value
 
-MAXS	Maximum Signal
+MaxS	Maximum Signal
 HHS	High High Signal
 HS	High Signal
 LS	Low Signal 
 LLS	Low Low Signal
-MINS	Minimum Signal
+MinS	Minimum Signal
 
 // Statistics
 Stat
@@ -111,7 +111,8 @@ Avg		Average
 Cnt		Counter
 Sum		Sum
 Med		Median
-
+Min
+Max
 AvgCnt	Average Counter
 AvgSum	Avrage Sum
 
