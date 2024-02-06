@@ -1,4 +1,9 @@
 '''
+Woermann Automation
+
+ToDO:
+- finish export to file option
+
 Usage:
 {1-99}
 	[1, 2, 3 , ...]
@@ -29,12 +34,18 @@ rexp1 = re.compile(r"(?:(?P<grp_q>[^,]+),?)+?") #find x,,,
 rexp2 = re.compile(r"(?P<grp_qp1>\d+)-(?P<grp_qp2>\d+)") #find 1-9
 rexp3 = re.compile(r"(?P<grp_qp1>[a-zA-Z])-(?P<grp_qp2>[a-zA-Z])") #find a-z and A-Z
 
+exp = False
+
 def ArgsMan(args):
+	global exp
 	parser = argparse.ArgumentParser(description='Web The Ripper')
-	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]', help='Input string to extract like: {(tag)0-2}-{A-C}+[tag]')
+	parser.add_argument('-i', '--input', default=' {(tag)0-2}-{A-C}+[tag]', help='Input string to extract, example: {(tag)0-2}-{A-C}+[tag]')
+	parser.add_argument('-ex', '--export', default='', help='Enter file where data should be written to')
 
 	args = parser.parse_args()
 	s = args.input
+	if not args.export == '':
+		exp = True
 
 	tStart = datetime.datetime.now()
 	# -----
@@ -69,9 +80,13 @@ def chargen(instr):
 				ende = ord(mm.group(r'grp_qp2'))
 				for x in range(start, ende + 1):
 					val = chr(x)
+					if tag:
+						dctCharTags[tag] = val
 					chargen(instr.replace(m.group(0), val, 1))
 			else:	# no increments, just value
 				val = gres
+				if tag:
+					dctCharTags[tag] = val
 				chargen(instr.replace(m.group(0), val, 1))
 	else:
 		for key, val in dctCharTags.items():
