@@ -1,6 +1,7 @@
 Variables:
 $blk    // Block
 $sym    // Symbol
+$id    	// Identification (Key)
 $des    // Description
 $num    // Contol Module Number
 $typ    // Contol Module Type
@@ -17,6 +18,7 @@ $atr.column
 Tags:
 <head>
 <body>
+<awl>
 <network>
 <unit>
 <seq>
