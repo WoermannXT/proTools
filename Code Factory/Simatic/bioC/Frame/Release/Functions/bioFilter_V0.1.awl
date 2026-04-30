@@ -6,7 +6,7 @@ TITLE = Simple Noise Filter
 // Description:
 // Val = Val * Alpha + (Raw * (1.0 - Alpha))
 // -- Inputs --
-// On: If TRUE the Filter is Active; Else the Filtered Value is not changed
+// On: If TRUE the Filter is Active; Else the Filtered Value = Raw Value
 // Raw: Input of the Raw Value
 // dMin: The defference between Raw Value and Filtered Value has to be bigger 
 //than this to be validated; 0 Turns this Function OFF
@@ -43,10 +43,13 @@ TITLE = Initialise
 // Acitve Evaluation
       L     #Val; 
       L     DW#16#FF800000; 
-      ==D   ; 
-      ON    #On; 
-      BEB   ; 
-      NOP   0; 
+      <>D   ; 
+      U     #On; 
+      SPB   Ini; 
+      L     #Raw; 
+      T     #Val; 
+      BEA   ; 
+Ini:  NOP   0; 
 
       L     #Raw; 
       L     #Val; 

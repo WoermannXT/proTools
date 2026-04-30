@@ -3,8 +3,7 @@ TITLE = Batch I/O PID Controller
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.4
-// Batch I/O PID Controller
-// by Woermann Automation
+// -- Woermann Automation --
 // Date: 2020-06-20
 // Description:
 // Error = Sp - PVal

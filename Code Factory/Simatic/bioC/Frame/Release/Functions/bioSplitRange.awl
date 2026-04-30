@@ -7,7 +7,7 @@ VERSION : 0.1
 // Slit Range to two Values
 // Date: 2020-07-05
 // Description:
-// Split the Value in a Range to two seperately defined Ranges. Commonly used for Split Range Controlls
+// Split a Value into two seperately defined Ranges. Commonly used for Split Range Controlls
 // Dependencies:
 // bioMap
 // -- Inputs --
@@ -29,17 +29,17 @@ VERSION : 0.1
 		InVal : Real;   // Input Value
 		InMinO1 : Real;   // Output 1 Minimum Input Value
 		InMaxO1 : Real;   // Output 1 Maximum Input Value
-		Out1Min : Real;   // Output 1 Minimum Output Value
-		Out1Max : Real;   // Output 1 Maximum Output Value
+		O1Min : Real;   // Output 1 Minimum Output Value
+		O1Max : Real;   // Output 1 Maximum Output Value
 		InMinO2 : Real;   // Output 2 Minimum Input Value
 		InMaxO2 : Real;   // Output 2 Maximum Input Value
-		Out2Min : Real;   // Output 2 Minimum Output Value
-		Out2Max : Real;   // Output 2 Maximum Output Value
+		O2Min : Real;   // Output 2 Minimum Output Value
+		O2Max : Real;   // Output 2 Maximum Output Value
 	END_VAR
 
 	VAR_OUTPUT 
-		Out1Val : Real;   // Output 1 Value
-		Out2Val : Real;   // Output 2 Value
+		O1Val : Real;   // Output 1 Value
+		O2Val : Real;   // Output 2 Value
 	END_VAR
 
 
@@ -48,10 +48,10 @@ BEGIN
 	TITLE = Initialise
 		A #On;
 		JCN RUN;
-		L #Out1Min;
-		T #Out1Val;
-		L #Out2Min;
-		T #Out2Val;
+		L #O1Min;
+		T #O1Val;
+		L #O2Min;
+		T #O2Val;
 		BEU;
 	RUN:      NOP 0;
 
@@ -62,10 +62,10 @@ BEGIN
 		(	InVal := #InVal , 
 			InMin := #InMinO1 , 
 			InMax := #InMaxO1 , 
-			OutMin := #Out1Min , 
-			OutMax := #Out1Max , 
+			OutMin := #O1Min , 
+			OutMax := #O1Max , 
 			Limit := TRUE , 
-			OutVal := #Out1Val
+			OutVal := #O1Val
 		);
 
 
@@ -75,10 +75,10 @@ BEGIN
 		(	InVal := #InVal , 
 			InMin := #InMinO2 , 
 			InMax := #InMaxO2 , 
-			OutMin := #Out2Min , 
-			OutMax := #Out2Max , 
+			OutMin := #O2Min , 
+			OutMax := #O2Max , 
 			Limit := TRUE , 
-			OutVal := #Out2Val
+			OutVal := #O2Val
 		);
 
 END_FUNCTION

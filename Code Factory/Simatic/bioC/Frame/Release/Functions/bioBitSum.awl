@@ -30,7 +30,7 @@ BEGIN
 		T     #OutByte; 
 		L     #InWord; 
 		PUSH  ; 
-	L00P: AW    ; 
+	L001: AW    ; 
 		T     #InWord; 
 		L     0; 
 		==D   ; 
@@ -40,7 +40,7 @@ BEGIN
 		T     #OutByte; 
 		L     #InWord; 
 		PUSH  ; 
-		LOOP  L00P; 
+		LOOP  L001; 
 
 END_FUNCTION
 

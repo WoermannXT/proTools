@@ -3,6 +3,7 @@ TITLE = Batch I/O Transfer Manager
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.1
+// -- Woermann Automation --
 //Block to Unify and Manage Transfer Communication Signals
 	VAR_INPUT
 		Master : Bool;   // True if this is the Transfer Master

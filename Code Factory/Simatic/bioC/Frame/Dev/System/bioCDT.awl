@@ -3,8 +3,7 @@ TITLE = Batch I/O Cycle, Clock, Date and Time Control
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.1
-// Batch I/O Cycle, Clock, Date and Time Control:
-// by Woermann Automation
+// -- Woermann Automation --
 // Under Construction!!!
 // Time Base Calculation has to be mode more exact and robust. 
 // Count with max three digits to increase accuracy 

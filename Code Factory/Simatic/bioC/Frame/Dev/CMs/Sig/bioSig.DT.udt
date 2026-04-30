@@ -1,7 +1,8 @@
 ﻿TYPE "bioSig.DT"
+TITLE = Batch I/O Signal Data Type
+// -- Woermann Automation --
+AUTHOR : Woermann
 VERSION : 0.1
-// Batch I/O Signal Data Type:
-// by Woermann Automation
 	STRUCT
 		Sig :  Bool;   // (O) Signal
 		_Sig :  Bool;   // (O) Internal Signal

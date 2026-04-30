@@ -1,7 +1,8 @@
 ﻿TYPE "bioAct.DT"
+TITLE = Batch I/O Actuator Data Type
+// -- Woermann Automation --
+AUTHOR : Woermann
 VERSION : 0.1
-// Batch I/O Actuator Data Type:
-// by Woermann Automation
 	STRUCT
 		OOn : Bool;   // (O) Output On / Open
 		OOff : Bool;   // (O) Output Off / Closed

@@ -4,7 +4,6 @@ TITLE = Convert Floating Point to Step
 AUTHOR : Woermann
 VERSION : 0.3
 // -- Woermann Automation --
-// by Woermann Automation
 // Date: 2020-07-05
 // Description:
 // Convert a Real (Floating Point) Value to Step Number (Integer)

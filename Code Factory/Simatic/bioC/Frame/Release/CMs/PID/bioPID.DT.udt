@@ -1,7 +1,8 @@
 ﻿TYPE "bioPID.DT"
+TITLE = Batch I/O PID Data Type
+// -- Woermann Automation --
+AUTHOR : Woermann
 VERSION : 0.1
-// Batch I/O PID Data Type:
-// by Woermann Automation
 	STRUCT
 		COn : Bool;   // (I) Activate PID (PID Algorithm run request)
 		SetP { S7_SetPoint := 'True'} : Real;   // (I) Setpoint to be reached

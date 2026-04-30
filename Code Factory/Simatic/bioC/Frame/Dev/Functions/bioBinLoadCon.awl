@@ -3,6 +3,7 @@ TITLE = Batch I/O Load Control
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.1
+// -- Woermann Automation --
 // Under Construction!!!
 // Dependencies:
 // bioBitCnt; bioReal2Step; 
@@ -11,7 +12,7 @@ VERSION : 0.1
 // This block activates the drivers in a circular bit sequence to equalise activation 
 // counts and run times. 
 // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|
-// |          Start P|           _onmap|
+// |        | Start-P|        |  runmap|
 
 	VAR_INPUT 
 		On : Bool;	// Activate Load Control (Reset if FALSE)
@@ -219,7 +220,7 @@ BEGIN
 		T	#remStat;
 		L 	#_startmap;
 		SLD	16;
-		L	#remStat;
+	//	L	#remStat;
 		OW;
 		T	#remStat;
 		

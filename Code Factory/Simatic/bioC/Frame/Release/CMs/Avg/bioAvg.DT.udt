@@ -1,0 +1,17 @@
+﻿TYPE "bioAvg.DT"
+TITLE = Batch I/O Average Calculator Data Type
+// -- Woermann Automation --
+AUTHOR : Woermann
+VERSION : 0.1
+
+  STRUCT 	
+   PntVal : INT ;	// (O) Average Pointer Value
+   PntMax : INT  := 99;	// (I) Average Pointer Max Value
+   Sum : REAL ;	// (O) Calculated Sum of Values
+   Avg : REAL ;	// (O) Calculated Average Value
+   Err : REAL ;	// (O) Floating Point Sum Error Correction
+   Full : BOOL ;	// (O) Data Set is Full
+   Spare : INT ;	// Spare
+   Val : ARRAY  [0 .. 99 ] OF REAL ;	// (I) Values for Average Calculation
+  END_STRUCT ;	
+END_TYPE

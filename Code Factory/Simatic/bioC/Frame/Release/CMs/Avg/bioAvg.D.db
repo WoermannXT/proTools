@@ -1,0 +1,15 @@
+﻿DATA_BLOCK "bioAvg.D"
+{ S7_Optimized_Access := 'TRUE' }
+TITLE = Batch I/O Average Calculator Data Block
+AUTHOR : Woermann
+VERSION : 1.0
+// -- Woermann Automation --
+
+	STRUCT 	
+		Avg : ARRAY  [1 .. 3 ] OF "bioAvg.DT";	
+	END_STRUCT ;	
+
+BEGIN
+
+END_DATA_BLOCK
+

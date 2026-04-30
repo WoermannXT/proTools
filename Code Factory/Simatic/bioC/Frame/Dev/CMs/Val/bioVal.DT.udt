@@ -1,7 +1,8 @@
 ﻿TYPE "bioVal.DT"
+TITLE = Batch I/O Value Data Type
+// -- Woermann Automation --
+AUTHOR : Woermann
 VERSION : 0.1
-// Batch I/O Value Data Type:
-// by Woermann Automation
 	STRUCT
 		Val :  Real;   // (O) Value (Processed)
 		Raw :  Real;   // (I) Raw Value

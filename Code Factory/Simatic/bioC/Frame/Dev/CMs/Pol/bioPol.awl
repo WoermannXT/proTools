@@ -3,8 +3,7 @@ TITLE = Batch I/O Polygon Table Processing
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.4
-// Batch I/O Polygon Table Processing
-// by Woermann Automation
+// -- Woermann Automation --
 // Date: 2020-08-28
 // Description:
 // Dependencies:
@@ -39,7 +38,7 @@ BEGIN
 		=	#_uf;
 	// --- Find Position ------------------------
 		L	16;
-	LOOP:T	#_lch;
+	L001:T	#_lch;
 		DEC 1;
 		T	#_lcl;
 		L	#me.Raw[#_lcl];
@@ -48,7 +47,7 @@ BEGIN
 		JC	BRK;
 		=	#_of;
 		L	#_lch;
-		JC    LOOP;
+		JC    L001;
 		SET;
 		=	#_uf;	// Raw Value below Raw[0]
 	BRK: NOP 0;

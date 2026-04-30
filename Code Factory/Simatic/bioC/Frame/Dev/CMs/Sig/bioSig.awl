@@ -3,8 +3,7 @@ TITLE = Batch I/O Digital Signal Processing
 { S7_Optimized_Access := 'TRUE' }
 AUTHOR : Woermann
 VERSION : 0.4
-// Batch I/O Digital Signal Processing
-// by Woermann Automation
+// -- Woermann Automation --
 // Date: 2020-07-15
 // Description:
 

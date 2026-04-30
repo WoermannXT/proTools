@@ -52,18 +52,18 @@ BEGIN
 
 	NETWORK
 	TITLE = Calculation
-	CALC:L	#_TBase;
+	CALC:L	#_TBase;	// !!!
 		L	#Period;
 		/R;
-		l	65535.0;	// 2^16 - 1
-		*R;
 		RND;
+		l	L#65535;	// 2^16 - 1
+		*D;
 		L	#remTic;
-		+I;
+		+D;
 		T	#_TicVal;
 
 		L	#SetP;
-		l	655.36;	// 2^16 / 100
+		L	655.36;	// 2^16 / 100
 		*R;
 		RND;
 		T	#_TicSetP;
